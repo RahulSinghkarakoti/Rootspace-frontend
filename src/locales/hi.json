@@ -1,0 +1,82 @@
+{
+  "dashboard": {
+    "goodMorning": "सुप्रभात",
+    "goodAfternoon": "शुभ अपराह्न",
+    "goodEvening": "शुभ संध्या",
+    "newFamilyTree": "नई फ़ैमिली ट्री",
+    "yourTrees": "आपके पेड़",
+    "viewAll": "सभी देखें",
+    "createANewFamilyTree": "एक नया परिवार वृक्ष बनायें",
+    "recentActivity": "हाल की गतिविधियाँ",
+    "upgradeToPro": "प्रो में अपग्रेड करें",
+    "upgradeDescription": "अनलिमिटेड ट्री, डीएनए रिकॉर्ड मिलान, प्रायोरिटी खोज, और उन्नत साझाकरण नियंत्रण।",
+    "upgradeButton": "अपग्रेड — ₹699/माह"
+  },
+  "sidebar": {
+    "main": "मुख्य",
+    "discover": "खोजें",
+    "account": "खाता",
+    "dashboard": "डैशबोर्ड",
+    "myTrees": "मेरे पेड़",
+    "ancestralSearch": "पूर्वज खोज",
+    "sharedTrees": "साझा पेड़",
+    "collaborators": "सहयोगी",
+    "settings": "सेटिंग्स",
+    "helpSupport": "मदद और समर्थन"
+  },
+  "navbar": {
+    "searchPlaceholder": "पूर्वज, पेड़ खोजें...",
+    "toggleTheme": "थीम बदलें",
+    "profile": "प्रोफ़ाइल",
+    "settings": "सेटिंग्स",
+    "billing": "बिलिंग",
+    "signOut": "साइन आउट",
+    "language": "भाषा",
+    "english": "अंग्रेज़ी",
+    "hindi": "हिन्दी"
+  },
+  "dialogs": {
+    "createTree": {
+      "title": "नया परिवार वृक्ष बनायें",
+      "description": "अपने नए ट्री को नाम दें, प्रकार चुनें, और कवर इमेज सेट करें।",
+      "treeName": "ट्री का नाम",
+      "treeType": "ट्री प्रकार",
+      "coverImage": "कवर इमेज URL",
+      "publicTree": "पब्लिक ट्री",
+      "cancel": "रद्द करें",
+      "createTree": "ट्री बनायें",
+      "creating": "बना रहे हैं...",
+      "treeNameRequired": "ट्री का नाम आवश्यक है।"
+    },
+    "createPerson": {
+      "title": "नया व्यक्ति जोड़ें",
+      "description": "इस व्यक्ति को चुने गए नोड से जोड़ें",
+      "fullName": "पूरा नाम *",
+      "fullNamePlaceholder": "जैसे: रमेश कुमार",
+      "gender": "लिंग",
+      "male": "पुरुष",
+      "female": "महिला",
+      "birthDate": "जन्म तारीख",
+      "birthPlace": "जन्म स्थान",
+      "birthPlacePlaceholder": "जैसे: दिल्ली",
+      "deceasedQuestion": "क्या निधन हो चुका है?",
+      "deceasedDescription": "क्या यह व्यक्ति दिवंगत है?",
+      "deathDate": "मृत्यु तारीख",
+      "relationship": "चुने गए व्यक्ति के साथ संबंध",
+      "notes": "नोट्स (वैकल्पिक)",
+      "notesPlaceholder": "कोई अतिरिक्त जानकारी",
+      "cancel": "रद्द करें",
+      "adding": "जोड़ रहे हैं...",
+      "addPerson": "व्यक्ति जोड़ें"
+    },
+    "relations": {
+      "fatherOf": "पिता हैं",
+      "motherOf": "माता हैं",
+      "childOf": "बच्चा है",
+      "husbandOf": "पति हैं",
+      "wifeOf": "पत्नी हैं",
+      "siblingOf": "भाई/बहन",
+      "partnerOf": "साथी हैं"
+    }
+  }
+}

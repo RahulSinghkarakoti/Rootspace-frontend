@@ -1,0 +1,5 @@
+export { default as TreesPage } from './TreesPage'
+export { default as AncestralSearchPage } from './AncestralSearchPage'
+export { default as SharedTreesPage } from './SharedTreesPage'
+export { default as CollaboratorsPage } from './CollaboratorsPage'
+export { default as SettingsPage } from './SettingsPage'

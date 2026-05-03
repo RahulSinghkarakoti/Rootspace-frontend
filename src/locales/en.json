@@ -1,0 +1,78 @@
+{
+  "dashboard": {
+    "goodMorning": "Good morning",
+    "goodAfternoon": "Good afternoon",
+    "goodEvening": "Good evening",
+    "newFamilyTree": "New Family Tree",
+    "yourTrees": "Your Trees",
+    "viewAll": "View all",
+    "createANewFamilyTree": "Create a new family tree",
+    "recentActivity": "Recent Activity",
+    "upgradeToPro": "Upgrade to Pro",
+    "upgradeDescription": "Unlimited trees, DNA record matching, priority ancestral search, and advanced sharing controls.",
+    "upgradeButton": "Upgrade — $9/mo"
+  },
+  "sidebar": {
+    "main": "Main",
+    "discover": "Discover",
+    "account": "Account",
+    "dashboard": "Dashboard",
+    "myTrees": "My Trees",
+    "ancestralSearch": "Ancestral Search",
+    "sharedTrees": "Shared Trees",
+    "collaborators": "Collaborators",
+    "settings": "Settings",
+    "helpSupport": "Help & Support"
+  },
+  "navbar": {
+    "searchPlaceholder": "Search ancestors, trees...",
+    "toggleTheme": "Toggle theme",
+    "profile": "Profile",
+    "settings": "Settings",
+    "billing": "Billing",
+    "signOut": "Sign out",
+    "language": "Language",
+    "english": "English",
+    "hindi": "Hindi"
+  },
+  "dialogs": {
+    "createTree": {
+      "title": "Create new family tree",
+      "description": "Give your new tree a name, choose the type, and optionally set a cover image.",
+      "treeName": "Tree name",
+      "treeType": "Tree type",
+      "coverImage": "Cover image URL",
+      "publicTree": "Public tree",
+      "cancel": "Cancel",
+      "createTree": "Create tree",
+      "creating": "Creating...",
+      "treeNameRequired": "Tree name is required."
+    },
+    "createPerson": {
+      "title": "Add new person",
+      "description": "Link this person to the selected node",
+      "fullName": "Full name *",
+      "fullNamePlaceholder": "e.g. Ramesh Kumar",
+      "gender": "Gender",
+      "male": "Male",
+      "female": "Female",
+      "birthDate": "Birth date",
+      "birthPlace": "Birth place",
+      "birthPlacePlaceholder": "e.g. Delhi",
+      "deceasedQuestion": "Deceased?",
+      "deceasedDescription": "Is this person deceased?",
+      "deathDate": "Death date",
+      "relationship": "Relationship to selected person",
+      "notes": "Notes (optional)",
+      "notesPlaceholder": "Any extra info",
+      "cancel": "Cancel",
+      "adding": "Adding...",
+      "addPerson": "Add person"
+    },
+    "relations": {
+      "parentOf": "Parent ",
+      "siblingOf": "Sibling",
+      "spouseOf": "Partner"
+    }
+  }
+}
