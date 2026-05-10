@@ -119,3 +119,8 @@
 .react-flow__attribution {
   display: none;
 }
+
+.react-flow__handle {
+  opacity: 0;
+  pointer-events: none;
+}

@@ -6,9 +6,7 @@ import {
   BackgroundVariant,
   useNodesState,
   useEdgesState,
-  addEdge,
   ReactFlowProvider,
-  type Connection,
   Panel,
 } from '@xyflow/react'
 import '@xyflow/react/dist/style.css'
@@ -19,24 +17,78 @@ import type { PersonDetail } from '../../types/familyTree'
 import { useAppStore } from '@/store/appStore'
 import CreatePersonDialog from '@/components/dialogs/CreatePersonDialog/CreatePersonDialog.tsx'
 import { Button } from '@/components/ui/button.tsx'
-import { Plus } from 'lucide-react'
+import { Plus, AlertTriangle, RefreshCw } from 'lucide-react'
 import { buildFamilyTreeGraph } from '@/utils/treeLayoutUtils.ts'
 import { BridgeNode } from '@/components/layout/BridgeNode.tsx'
 
-const nodeTypes = { familyMember: FamilyMemberNode,
-   bridgeNode: BridgeNode,
- }
+const nodeTypes = {
+  familyMember: FamilyMemberNode,
+  bridgeNode: BridgeNode,
+}
+
+// ── Loading overlay ───────────────────────────────────────────────────────────
+
+function LoadingOverlay() {
+  return (
+    <div className="fixed inset-x-0 top-[56px] bottom-0 z-10 flex flex-col items-center justify-center gap-3 bg-background">
+      <div className="flex items-center gap-3 rounded-2xl border border-border bg-card px-6 py-4 shadow-lg">
+        <svg
+          className="h-5 w-5 animate-spin text-muted-foreground"
+          xmlns="http://www.w3.org/2000/svg"
+          fill="none"
+          viewBox="0 0 24 24"
+        >
+          <circle
+            className="opacity-25"
+            cx="12" cy="12" r="10"
+            stroke="currentColor"
+            strokeWidth="4"
+          />
+          <path
+            className="opacity-75"
+            fill="currentColor"
+            d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"
+          />
+        </svg>
+        <span className="text-sm text-muted-foreground">Loading family tree…</span>
+      </div>
+    </div>
+  )
+}
+
+// ── Error overlay ─────────────────────────────────────────────────────────────
+
+function ErrorOverlay({ message, onRetry }: { message: string; onRetry: () => void }) {
+  return (
+    <div className="fixed inset-x-0 top-[56px] bottom-0 z-10 flex flex-col items-center justify-center gap-4 bg-background">
+      <div className="flex max-w-sm flex-col items-center gap-3 rounded-2xl border border-destructive/40 bg-card px-8 py-6 shadow-lg text-center">
+        <AlertTriangle className="h-8 w-8 text-destructive opacity-80" />
+        <p className="text-sm font-medium text-foreground">Failed to load tree</p>
+        <p className="text-xs text-muted-foreground leading-relaxed">{message}</p>
+        <Button
+          variant="outline"
+          size="sm"
+          className="mt-1 gap-1.5 text-xs"
+          onClick={onRetry}
+        >
+          <RefreshCw className="h-3.5 w-3.5" />
+          Try again
+        </Button>
+      </div>
+    </div>
+  )
+}
 
 // ── Inner component ───────────────────────────────────────────────────────────
 
-function TreeEditorInner({ sidebarOffset, treeId}: { sidebarOffset: number; treeId: number }) {
+function TreeEditorInner({ sidebarOffset, treeId }: { sidebarOffset: number; treeId: number }) {
   const [selectedId, setSelectedId]   = useState<string | null>(null)
   const [sidebarOpen, setSidebarOpen] = useState(false)
 
-  const people      = useTreeStore(s => s.people)
-  const relations   = useTreeStore(s => s.relations)
-  const isLoading   =  useTreeStore(s => s.isLoading)
-  const error       = useTreeStore(s => s.error)
+  const people          = useTreeStore(s => s.people)
+  const relations       = useTreeStore(s => s.relations)
+  const isLoading       = useTreeStore(s => s.isLoading)
+  const error           = useTreeStore(s => s.error)
   const loadCurrentTree = useTreeStore(s => s.loadCurrentTree)
 
   const selectedPerson: PersonDetail | null = useMemo(
@@ -46,28 +98,30 @@ function TreeEditorInner({ sidebarOffset, treeId}: { sidebarOffset: number; tree
 
   useEffect(() => {
     loadCurrentTree(treeId)
-  }, [ treeId])
-
+  }, [treeId])
 
   const handleNodeClick = useCallback(
-    (id: string) => {
-      if (selectedId === id) {
-        setSelectedId(null)
-        setSidebarOpen(false)
-      } else {
-        setSelectedId(id)
-        setSidebarOpen(true)
-      }
-    },
-    [selectedId],
-  )
+  (id: string, showInfo: boolean=false) => {
+    console.log('Node clicked:', id, 'Show info:', showInfo)
+    if (selectedId === id) {
+      setSelectedId(null)
+      setSidebarOpen(false)
+      return
+    }
 
-  // ── Use the new custom layout ──────────────────────────────────────────────
+    setSelectedId(id)
+
+    if (showInfo) {
+      setSidebarOpen(true)
+    }
+  },
+  [selectedId],
+)
+
   const graph = useMemo(
     () => buildFamilyTreeGraph(people, relations, selectedId, handleNodeClick, treeId),
     [people, relations, selectedId, handleNodeClick, treeId],
   )
-  
 
   const [nodes, setNodes, onNodesChange] = useNodesState(graph.nodes)
   const [edges, setEdges, onEdgesChange] = useEdgesState(graph.edges)
@@ -77,22 +131,53 @@ function TreeEditorInner({ sidebarOffset, treeId}: { sidebarOffset: number; tree
     setEdges(graph.edges)
   }, [graph, setNodes, setEdges])
 
-  const onConnect = useCallback(
-    (params: Connection) =>
-      setEdges(eds =>
-        addEdge(
-          {
-            ...params,
-            type: 'smoothstep',
-            style: { stroke: 'hsl(var(--border))', strokeWidth: 1.5, opacity: 0.7 },
-          },
-          eds,
-        ),
-      ),
-    [setEdges],
+  // ── Edge highlighting ──────────────────────────────────────────────────────
+  const styledEdges = useMemo(() => {
+    if (!selectedId) return edges
+
+    return edges.map(edge => {
+      const directlyConnected =
+        edge.source === selectedId ||
+        edge.target === selectedId
+
+      const viabridge =
+        edge.source.startsWith('bridge-') &&
+        (edge.source.includes(`-${selectedId}-`) ||
+          edge.source.endsWith(`-${selectedId}`))
+
+      const connected = directlyConnected || viabridge
+
+      if (connected) {
+        const color =
+          edge.data?.relationType === 'SPOUSE_OF'  ? '#f59e0b' :
+          edge.data?.relationType === 'SIBLING_OF' ? '#10b981' :
+                                                     '#3b82f6'
+        return {
+          ...edge,
+          style: { ...edge.style, stroke: color, strokeWidth: 3, opacity: 1 },
+          animated: edge.data?.relationType === 'PARENT_OF',
+          zIndex: 10,
+        }
+      }
+
+      return {
+        ...edge,
+        style: { ...edge.style, opacity: 0.12 },
+        zIndex: 0,
+      }
+    })
+  }, [edges, selectedId])
+
+  // ── Loading / error / empty gates ─────────────────────────────────────────
+  if (isLoading) return <LoadingOverlay />
+
+  if (error) return (
+    <ErrorOverlay
+      message={typeof error === 'string' ? error : 'An unexpected error occurred.'}
+      onRetry={() => loadCurrentTree(treeId)}
+    />
   )
 
- 
   if (people.length === 0) {
     return (
       <div className="fixed inset-x-0 top-[56px] bottom-0 z-10 flex flex-col items-center justify-center gap-4 bg-background text-muted-foreground">
@@ -122,10 +207,11 @@ function TreeEditorInner({ sidebarOffset, treeId}: { sidebarOffset: number; tree
       >
         <ReactFlow
           nodes={nodes}
-          edges={edges}
+          edges={styledEdges}
           onNodesChange={onNodesChange}
           onEdgesChange={onEdgesChange}
-          onConnect={onConnect}
+          onConnect={undefined}
+          nodesConnectable={false}
           nodeTypes={nodeTypes}
           fitView
           fitViewOptions={{ padding: 0.12 }}
@@ -186,16 +272,15 @@ function TreeEditorInner({ sidebarOffset, treeId}: { sidebarOffset: number; tree
 // ── Export ────────────────────────────────────────────────────────────────────
 
 export default function TreeEditorPage() {
-  const [searchParams]    = useSearchParams()
-  const treeParam         = Number(searchParams.get('tree'))
-  const treeId            = Number.isInteger(treeParam) && treeParam > 0 ? treeParam : 1
+  const [searchParams]       = useSearchParams()
+  const treeParam            = Number(searchParams.get('tree'))
+  const treeId               = Number.isInteger(treeParam) && treeParam > 0 ? treeParam : 1
   const { sidebarCollapsed } = useAppStore()
-  const sidebarOffset     = sidebarCollapsed ? 68 : 260
+  const sidebarOffset        = sidebarCollapsed ? 68 : 260
 
   return (
     <ReactFlowProvider>
       <TreeEditorInner sidebarOffset={sidebarOffset} treeId={treeId} />
     </ReactFlowProvider>
-    
   )
 }

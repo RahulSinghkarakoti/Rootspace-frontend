@@ -23,6 +23,7 @@ interface CreatePersonDialogProps {
   children: React.ReactNode;
   onSuccess?: (person: PersonDetail) => void;
   treeId: number;
+  relationType?: string;
   fromId?: string; // ID of the person to link this new person to
 }
 
@@ -46,15 +47,16 @@ const CreatePersonDialog: React.FC<CreatePersonDialogProps> = ({
   children,
   onSuccess,
   treeId,
+  relationType,
   fromId = null,
 }) => {
   const { t } = useTranslation();
   const loadCurrentTree = useTreeStore((state) => state.loadCurrentTree)
   const [open, setOpen] = React.useState(false);
   const [showDeathDate, setShowDeathDate] = React.useState(false);
-  const [relationType, setRelationType] = React.useState(
-    fromId ? "PARENT_OF" : "",
-  );
+  // const [relationType, setRelationType] = React.useState(
+  //   fromId ? "PARENT_OF" : "",
+  // );
 
   const {
     register,
@@ -79,7 +81,7 @@ const CreatePersonDialog: React.FC<CreatePersonDialogProps> = ({
     if (!open) {
       reset(defaultFormValues);
       setShowDeathDate(false);
-      setRelationType(fromId ? "PARENT_OF" : "");
+      // setRelationType(fromId ? "PARENT_OF" : "");
     }
   }, [open, fromId, reset]);
 
@@ -99,12 +101,12 @@ const CreatePersonDialog: React.FC<CreatePersonDialogProps> = ({
       relations:
         fromId && relationType
           ? [
-              {
-                toId: fromId.toString(),
-                type: relationType as any,
-                isActive: true,
-              },
-            ]
+            {
+              toId: fromId.toString(),
+              type: relationType as any,
+              isActive: true,
+            },
+          ]
           : [],
     });
   };
@@ -117,9 +119,7 @@ const CreatePersonDialog: React.FC<CreatePersonDialogProps> = ({
           "flex flex-col gap-0 p-0 overflow-hidden w-full h-[100dvh] rounded-none " +
           "sm:h-auto sm:max-h-[90dvh] sm:rounded-xl sm:max-w-2xl lg:max-w-3xl"
         }
-      >
-        {treeId}
-        {fromId}
+      > 
         <DialogHeader className="shrink-0 px-5 pt-5 pb-3 border-b border-border">
           <DialogTitle className="text-base leading-snug">
             {t("dialogs.createPerson.title")}
@@ -166,13 +166,12 @@ const CreatePersonDialog: React.FC<CreatePersonDialogProps> = ({
                         gender === option.value ? null : option.value,
                       )
                     }
-                    className={`h-10 rounded-md border text-sm transition-colors ${
-                      gender === option.value
+                    className={`h-10 rounded-md border text-sm transition-colors ${gender === option.value
                         ? option.value === "male"
                           ? "border-sky-400 bg-sky-50 text-sky-800 dark:bg-sky-950 dark:text-sky-200"
                           : "border-pink-400 bg-pink-50 text-pink-800 dark:bg-pink-950 dark:text-pink-200"
                         : "border-input bg-muted/40 text-muted-foreground hover:bg-muted"
-                    }`}
+                      }`}
                   >
                     {option.label}
                   </button>
@@ -235,7 +234,7 @@ const CreatePersonDialog: React.FC<CreatePersonDialogProps> = ({
             </div>
           )}
 
-          {fromId && (
+          {/* {fromId && (
             <div className="space-y-1.5">
               <Label>{t("dialogs.createPerson.relationship")}</Label>
               <div className="grid grid-cols-4 sm:grid-cols-7 gap-1.5">
@@ -257,7 +256,7 @@ const CreatePersonDialog: React.FC<CreatePersonDialogProps> = ({
                 ))}
               </div>
             </div>
-          )}
+          )} */}
 
           <div className="space-y-1">
             <Label htmlFor="notes">{t("dialogs.createPerson.notes")}</Label>
