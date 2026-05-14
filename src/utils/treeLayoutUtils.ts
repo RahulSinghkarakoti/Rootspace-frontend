@@ -269,13 +269,13 @@ function computePositions(
 ): Map<string, PosInfo> {
     const pos = new Map<string, PosInfo>()
     const maxDepth = Math.max(...byDepth.keys(), 0)
- 
+
     // ── Initial left-to-right placement ──────────────────────────────────────
     for (let d = 0; d <= maxDepth; d++) {
         const units = byDepth.get(d) ?? []
         const y = d * (NODE_H + V_GAP) + 40
         let cursor = 40
- 
+
         for (const unit of units) {
             const unitW = unit.spouse ? NODE_W * 2 + COUPLE_GAP : NODE_W
             pos.set(unit.primary, { x: cursor, y })
@@ -285,7 +285,7 @@ function computePositions(
             cursor += unitW + H_GAP
         }
     }
- 
+
     // ── FIX 1: Centre children under their parent couple (top-down pass) ─────
     // Run top-down first so children are placed relative to their already-
     // positioned parents before we do the bottom-up re-centering of parents.
@@ -294,25 +294,25 @@ function computePositions(
             const units = byDepth.get(d) ?? []
             for (const unit of units) {
                 if (unit.children.length === 0) continue
- 
+
                 // Midpoint of this couple unit
                 const pPos = pos.get(unit.primary)!
                 const coupleW = unit.spouse ? NODE_W * 2 + COUPLE_GAP : NODE_W
                 const coupleMid = pPos.x + coupleW / 2
- 
+
                 // Current span of children
                 const childXs = unit.children
                     .map(cid => pos.get(cid)?.x)
                     .filter((x): x is number => x !== undefined)
                 if (childXs.length === 0) continue
- 
+
                 const childSpan = (Math.max(...childXs) + NODE_W) - Math.min(...childXs)
                 const desiredChildLeft = coupleMid - childSpan / 2
                 const currentChildLeft = Math.min(...childXs)
                 const shift = desiredChildLeft - currentChildLeft
- 
+
                 if (Math.abs(shift) < 1) continue
- 
+
                 // Shift all children together
                 for (const cid of unit.children) {
                     const cp = pos.get(cid)
@@ -320,24 +320,24 @@ function computePositions(
                 }
             }
         }
- 
+
         // ── Centre parents over their children (bottom-up pass) ──────────────
         for (let d = maxDepth - 1; d >= 0; d--) {
-            const units = byDepth.get(d) ?? []
+            const units = byDepth.get(d) ?? [] 
             for (const unit of units) {
                 if (unit.children.length === 0) continue
                 const childXs = unit.children
                     .map(cid => pos.get(cid)?.x)
                     .filter((x): x is number => x !== undefined)
                 if (childXs.length === 0) continue
- 
+
                 const childMin = Math.min(...childXs)
                 const childMax = Math.max(...childXs) + NODE_W
                 const desiredMid = (childMin + childMax) / 2
                 const unitW = unit.spouse ? NODE_W * 2 + COUPLE_GAP : NODE_W
                 const newX = desiredMid - unitW / 2
                 const y = pos.get(unit.primary)!.y
- 
+
                 pos.set(unit.primary, { x: newX, y })
                 if (unit.spouse) {
                     pos.set(unit.spouse, { x: newX + NODE_W + COUPLE_GAP, y })
@@ -345,27 +345,27 @@ function computePositions(
             }
         }
     }
- 
+
     // ── Fix overlaps with clan-aware spacing ──────────────────────────────────
     for (let d = 0; d <= maxDepth; d++) {
         const units = byDepth.get(d) ?? []
         let minX = 40
         for (let i = 0; i < units.length; i++) {
-            const unit     = units[i]
+            const unit = units[i]
             const prevUnit = units[i - 1]
-            const unitW    = unit.spouse ? NODE_W * 2 + COUPLE_GAP : NODE_W
- 
+            const unitW = unit.spouse ? NODE_W * 2 + COUPLE_GAP : NODE_W
+
             const isNewClan = prevUnit ? !sharesAncestor(
                 [unit.primary, unit.spouse].filter(Boolean) as string[],
                 [prevUnit.primary, prevUnit.spouse].filter(Boolean) as string[],
                 childToParents
             ) : false
- 
-            const gap  = isNewClan ? H_GAP * 4 : H_GAP
+
+            const gap = isNewClan ? H_GAP * 4 : H_GAP
             const info = pos.get(unit.primary)!
-            const x    = Math.max(minX, info.x)
-            const y    = info.y
- 
+            const x = Math.max(minX, info.x)
+            const y = info.y
+
             pos.set(unit.primary, { x, y })
             if (unit.spouse) {
                 pos.set(unit.spouse, { x: x + NODE_W + COUPLE_GAP, y })
@@ -373,10 +373,10 @@ function computePositions(
             minX = x + unitW + gap
         }
     }
- 
+     
     return pos
 }
- 
+
 
 // ── Step 6: Bridge node helpers ───────────────────────────────────────────────
 
@@ -583,8 +583,8 @@ export function buildFamilyTreeGraph(
     const spouseOf = buildSpouseMap(relations)
     const depths = assignDepths(personIds, parentToChildren, childToParents, spouseOf)
     const byDepth = buildCoupleUnits(personIds, depths, spouseOf, parentToChildren)
-    const pos = computePositions(byDepth,childToParents)
-    const nodes = makeNodes(people, pos, depths, parentToChildren, byDepth, selectedId, onNodeClick, treeId,relations)
+    const pos = computePositions(byDepth, childToParents)
+    const nodes = makeNodes(people, pos, depths, parentToChildren, byDepth, selectedId, onNodeClick, treeId, relations)
     const edges = makeEdges(relations, byDepth, parentToChildren, pos)
 
     return { nodes, edges }
