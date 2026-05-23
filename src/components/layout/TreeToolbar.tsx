@@ -1,7 +1,7 @@
 import { Download, Maximize2, Minus, Plus, Users, ZoomIn } from "lucide-react";
 import { useReactFlow } from "@xyflow/react";
 import { toPng } from "html-to-image";
-import CreatePersonDialog from "../dialogs/CreatePersonDialog/CreatePersonDialog";
+import CreatePersonDialog from "../dialogs/CreateUpdatePersonDialog/CreatePersonDialog";
 import { useTreeStore } from "../../store/treeStore";
 
 interface Props {

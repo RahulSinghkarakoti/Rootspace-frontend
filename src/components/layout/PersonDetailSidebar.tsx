@@ -1,11 +1,13 @@
 import { useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import {
   X, ChevronDown, ChevronRight, BookOpen, Image, Info,
-  Calendar, User, FileText, GraduationCap, Film, MapPin
+  Calendar, User, FileText, GraduationCap, Film, MapPin, Camera
 } from 'lucide-react'
 import { useTreeStore } from '@/store/treeStore'
 import { Button } from '../ui/button'
-
+import { useMutation } from '@tanstack/react-query'
+import AvatarUploadDialog from '../dialogs/AvatarUploadDialog/AvatarUploadDialog'
 interface EducationItem {
   id: number
   institution: string
@@ -34,6 +36,7 @@ interface PersonDetail {
   deathDate: string | null
   notes?: string
   birthPlace?: string
+  avatarUrl?: string
   education: EducationItem[]
   media: MediaItem[]
 }
@@ -108,12 +111,27 @@ const MEDIA_COLOR: Record<string, string> = {
 }
 
 export function PersonDetailSidebar({ person, onClose }: Props) {
+  const { t } = useTranslation()
   const isFemale = person?.gender === 'female'
   const { deleteNode } = useTreeStore()
   const formatDate = (date: string | null) => {
     if (!date) return null
     return new Date(date).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })
   }
+
+
+  const mutation = useMutation({
+    mutationFn: async (personId: string) => {
+      deleteNode(personId)
+    },
+    onSuccess: () => {
+      onClose()
+    },
+  });
+
+  const onDelete = (personId: string) => {
+    mutation.mutate(personId);
+  };
 
   return (
     <div
@@ -143,22 +161,28 @@ export function PersonDetailSidebar({ person, onClose }: Props) {
             <div
               className={`
                 relative flex items-center justify-center
-                w-16 h-16 rounded-2xl border-2 text-lg font-bold
-                overflow-hidden flex-shrink-0
+                w-16 h-16 rounded-2xl border-2 overflow-hidden
+                flex-shrink-0
                 ${isFemale
                   ? 'border-rose-400/50 bg-rose-500/15 text-rose-300'
                   : 'border-sky-400/50 bg-sky-500/15 text-sky-300'
                 }
               `}
             >
-              {person?.fullName
-                .split(' ')
-                .map((n) => n[0])
-                .join('')
-                .slice(0, 2)
-                .toUpperCase()}
+              {person?.avatarUrl ? (
+                <img src={person.avatarUrl} alt={person.fullName} className="w-full h-full object-cover" />
+              ) : (
+                <span className="text-lg font-bold">
+                  {person?.fullName
+                    .split(' ')
+                    .map((n) => n[0])
+                    .join('')
+                    .slice(0, 2)
+                    .toUpperCase()}
+                </span>
+              )}
             </div>
-            <div>
+            <div className="flex-1 min-w-0">
               <h2 className="text-base font-bold text-foreground leading-tight">{person?.fullName}</h2>
               <p className="text-[11px] text-muted-foreground mt-0.5 capitalize">{person?.gender}</p>
               {person?.birthDate && (
@@ -166,6 +190,16 @@ export function PersonDetailSidebar({ person, onClose }: Props) {
                   b. {new Date(person.birthDate).getFullYear()}
                   {person.deathDate && ` – d. ${new Date(person.deathDate).getFullYear()}`}
                 </p>
+              )}
+              {person && (
+                <div className="mt-3">
+                  <AvatarUploadDialog personId={person.id}>
+                    <Button variant="outline" size="sm" className="gap-2">
+                      <Camera className="w-4 h-4" />
+                      {t('dialogs.avatarUpload.changeAvatar')}
+                    </Button>
+                  </AvatarUploadDialog>
+                </div>
               )}
             </div>
           </div>
@@ -178,7 +212,7 @@ export function PersonDetailSidebar({ person, onClose }: Props) {
         </div>
       </div>
 
-      
+
       {/* Scrollable body */}
       <div className="flex-1 overflow-y-auto p-4 space-y-3 scrollbar-thin scrollbar-thumb-white/10">
         {/* Meta Info */}
@@ -275,7 +309,7 @@ export function PersonDetailSidebar({ person, onClose }: Props) {
         </Section>
 
       </div>
-              <Button variant="destructive" size="sm" className="mx-5 my-2 mt-4 w-auto" onClick={() => person && deleteNode(person.id)}>
+      <Button variant="destructive" size="sm" className="mx-5 my-2 mt-4 w-auto" onClick={() => person && onDelete(person.id)}>
         Delete Person
       </Button>
     </div>

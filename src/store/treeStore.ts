@@ -1,10 +1,14 @@
 import { create } from 'zustand'
 import { treesApi } from '@/api/treesApi'
 import type { EducationItem, MediaItem, PersonDetail, RelationItem } from '@/types/familyTree'
-import type { TreeSummary } from '@/types'
+import type { CreateTreePayload, TreeSummary } from '@/types'
 import { personApi } from '@/api/personApi'
 
 export interface TreeStoreState {
+  treesLoaded: boolean
+  deletingTree: boolean
+  creatingTree: boolean
+  trees: TreeSummary[]
   currentTreeId: number | null
   currentTree: TreeSummary | null
   people: PersonDetail[]
@@ -16,13 +20,21 @@ export interface TreeStoreState {
   isLoading: boolean
   error: string | null
 
+  setTreeLoaded: (loaded: boolean) => void
+  setTrees: (trees: TreeSummary[]) => void
+  createTree: (payload: CreateTreePayload) => Promise<TreeSummary>
+  deleteTree: (treeId: number) => Promise<void>
   setCurrentTreeId: (treeId: number | null) => void
   setCurrentTree: (tree: TreeSummary | null) => void
   setPeople: (people: PersonDetail[]) => void
   setRelations: (relations: RelationItem[]) => void
+  upsertPerson: (person: PersonDetail) => void
+  addPerson: (person: PersonDetail) => void
+  addRelations: (relations: RelationItem[]) => void
   setTreeMedia: (media: MediaItem[]) => void
   setError: (error: string | null) => void
   clearTree: () => void
+  loadAllTrees: () => Promise<void>
   loadCurrentTree: (treeId: number, force?: boolean) => Promise<void>
   deleteNode: (personId: string) => Promise<void>
   loadTreeMedia: (treeId: number) => Promise<void>
@@ -30,6 +42,10 @@ export interface TreeStoreState {
 }
 
 export const useTreeStore = create<TreeStoreState>((set, get) => ({
+  creatingTree: false,
+  deletingTree: false,
+  trees: [],
+  treesLoaded: false,
   currentTreeId: null,
   currentTree: null,
   people: [],
@@ -41,13 +57,110 @@ export const useTreeStore = create<TreeStoreState>((set, get) => ({
   isLoading: false,
   error: null,
 
+  setTrees: (trees) => set({ trees }),
+  setTreeLoaded: () => set({ treesLoaded: true }),
   setCurrentTreeId: (treeId) => set({ currentTreeId: treeId }),
   setCurrentTree: (currentTree) => set({ currentTree }),
   setPeople: (people) => set({ people }),
   setRelations: (relations) => set({ relations }),
+  upsertPerson: (person) =>
+    set((state) => ({
+      people: state.people.some((item) => item.id === person.id)
+        ? state.people.map((item) => item.id === person.id ? person : item)
+        : [...state.people, person],
+    })),
+  addPerson: (person) =>
+    set((state) => ({
+      people: state.people.some((item) => item.id === person.id)
+        ? state.people
+        : [...state.people, person],
+      currentTree: state.currentTree
+        ? {
+          ...state.currentTree,
+          _count: {
+            ...state.currentTree._count,
+            persons: state.currentTree._count.persons + 1,
+          },
+        }
+        : state.currentTree,
+    })),
+  addRelations: (relations) =>
+    set((state) => {
+      const existingKeys = new Set(
+        state.relations.map((relation) =>
+          relation.type === 'SPOUSE_OF'
+            ? [...[relation.fromId, relation.toId].sort(), relation.type].join('|')
+            : `${relation.fromId}|${relation.toId}|${relation.type}`
+        )
+      )
+
+      const newRelations = relations.filter((relation) => {
+        const key = relation.type === 'SPOUSE_OF'
+          ? [...[relation.fromId, relation.toId].sort(), relation.type].join('|')
+          : `${relation.fromId}|${relation.toId}|${relation.type}`
+
+        if (existingKeys.has(key)) return false
+        existingKeys.add(key)
+        return true
+      })
+
+      return { relations: [...state.relations, ...newRelations] }
+    }),
   setTreeMedia: (treeMedia) => set({ treeMedia }),
   setError: (error) => set({ error }),
 
+
+  loadAllTrees: async () => {
+    set({ isLoading: true, error: null })
+    try {
+      const response = await treesApi.getAll()
+      set({ trees: response.data.data })
+    } catch (error) {
+      set({
+        error: error instanceof Error ? error.message : 'Unable to load trees',
+      })
+    } finally {
+      set({ isLoading: false })
+    }
+  },
+  createTree: async (payload) => {
+    set({ error: null, creatingTree: true })
+    try {
+      const response = await treesApi.create(payload)
+      const newTree = response.data.data
+      set((state) => ({ trees: [...state.trees, newTree] }))
+      return newTree
+    } catch (error) {
+      const errorMessage =
+        error instanceof Error ? error.message : 'Unable to create tree'
+      set({ error: errorMessage })
+      throw new Error(errorMessage)
+    } finally {
+      set({ creatingTree: false })
+    }
+  },
+  deleteTree: async (treeId) => {
+    set({ error: null, deletingTree: true })
+    try {
+      await treesApi.delete(treeId.toString())
+      set((state) => ({
+        trees: state.trees.filter((tree) => tree.id !== treeId),
+        currentTreeId: state.currentTreeId === treeId ? null : state.currentTreeId,
+        currentTree: state.currentTreeId === treeId ? null : state.currentTree,
+        people: state.currentTreeId === treeId ? [] : state.people,
+        relations: state.currentTreeId === treeId ? [] : state.relations,
+        treeMedia: state.currentTreeId === treeId ? [] : state.treeMedia,
+        selectedPersonEducation: state.currentTreeId === treeId ? {} : state.selectedPersonEducation,
+      }))
+    } catch (error) {
+      const errorMessage =
+        error instanceof Error ? error.message : 'Unable to delete tree'
+      set({ error: errorMessage })
+      throw new Error(errorMessage)
+    } finally {
+      set({ deletingTree: false })
+    }
+  },
   clearTree: () =>
     set({
       currentTreeId: null,
@@ -89,21 +202,34 @@ export const useTreeStore = create<TreeStoreState>((set, get) => ({
   },
 
   deleteNode: async (personId) => {
-    set({ isLoading: true, error: null })
+    // set({ isLoading: true, error: null })
     try {
-      // After deletion, reload the current tree to reflect changes
-      const currentTreeId = get().currentTreeId
       await personApi.deletePerson(personId)
-      if (currentTreeId) {
-        await get().loadCurrentTree(currentTreeId, true) // Force reload to bypass cache
-      }
+      set((state) => ({
+        people: state.people.filter((person) => person.id !== personId),
+        relations: state.relations.filter(
+          (relation) => relation.fromId !== personId && relation.toId !== personId
+        ),
+        selectedPersonEducation: Object.fromEntries(
+          Object.entries(state.selectedPersonEducation).filter(([id]) => id !== personId)
+        ),
+        currentTree: state.currentTree
+          ? {
+            ...state.currentTree,
+            _count: {
+              ...state.currentTree._count,
+              persons: Math.max(0, state.currentTree._count.persons - 1),
+            },
+          }
+          : state.currentTree,
+      }))
     } catch (error) {
       console.error(error)
       set({
         error: error instanceof Error ? error.message : 'Unable to delete person',
       })
     } finally {
-      set({ isLoading: false })
+      // set({ isLoading: false })
     }
   },
 

@@ -15,7 +15,7 @@ import { FamilyMemberNode, PersonDetailSidebar, TreeToolbar } from '../../compon
 import { useTreeStore } from '../../store/treeStore'
 import type { PersonDetail } from '../../types/familyTree'
 import { useAppStore } from '@/store/appStore'
-import CreatePersonDialog from '@/components/dialogs/CreatePersonDialog/CreatePersonDialog.tsx'
+import CreatePersonDialog from '@/components/dialogs/CreateUpdatePersonDialog/CreatePersonDialog.tsx'
 import { Button } from '@/components/ui/button.tsx'
 import { Plus, AlertTriangle, RefreshCw } from 'lucide-react'
 import { buildFamilyTreeGraph } from '@/utils/treeLayoutUtils.ts'
@@ -82,14 +82,15 @@ function ErrorOverlay({ message, onRetry }: { message: string; onRetry: () => vo
 // ── Inner component ───────────────────────────────────────────────────────────
 
 function TreeEditorInner({ sidebarOffset, treeId }: { sidebarOffset: number; treeId: number }) {
-  const [selectedId, setSelectedId]   = useState<string | null>(null)
+  const [selectedId, setSelectedId] = useState<string | null>(null)
   const [sidebarOpen, setSidebarOpen] = useState(false)
 
-  const people          = useTreeStore(s => s.people)
-  const relations       = useTreeStore(s => s.relations)
-  const isLoading       = useTreeStore(s => s.isLoading)
-  const error           = useTreeStore(s => s.error)
+  const people = useTreeStore(s => s.people)
+  const relations = useTreeStore(s => s.relations)
+  const isLoading = useTreeStore(s => s.isLoading)
+  const error = useTreeStore(s => s.error)
   const loadCurrentTree = useTreeStore(s => s.loadCurrentTree)
+  const currentTree = useTreeStore(s => s.currentTree)
 
   const selectedPerson: PersonDetail | null = useMemo(
     () => people.find(p => p.id === selectedId) ?? null,
@@ -101,22 +102,22 @@ function TreeEditorInner({ sidebarOffset, treeId }: { sidebarOffset: number; tre
   }, [treeId])
 
   const handleNodeClick = useCallback(
-  (id: string, showInfo: boolean=false) => {
-    console.log('Node clicked:', id, 'Show info:', showInfo)
-    if (selectedId === id) {
-      setSelectedId(null)
-      setSidebarOpen(false)
-      return
-    }
+    (id: string, showInfo: boolean = false) => {
+      console.log('Node clicked:', id, 'Show info:', showInfo)
+      if (selectedId === id) {
+        setSelectedId(null)
+        setSidebarOpen(false)
+        return
+      }
 
-    setSelectedId(id)
+      setSelectedId(id)
 
-    if (showInfo) {
-      setSidebarOpen(true)
-    }
-  },
-  [selectedId],
-)
+      if (showInfo) {
+        setSidebarOpen(true)
+      }
+    },
+    [selectedId],
+  )
 
   const graph = useMemo(
     () => buildFamilyTreeGraph(people, relations, selectedId, handleNodeClick, treeId),
@@ -127,7 +128,18 @@ function TreeEditorInner({ sidebarOffset, treeId }: { sidebarOffset: number; tre
   const [edges, setEdges, onEdgesChange] = useEdgesState(graph.edges)
 
   useEffect(() => {
-    setNodes(graph.nodes)
+    setNodes((prevNodes) => {
+      const prevNodeMap = new Map(prevNodes.map((node) => [node.id, node]))
+      return graph.nodes.map((node) => {
+        const previous = prevNodeMap.get(node.id)
+        return previous
+          ? {
+            ...node,
+            position: previous.position ?? node.position,
+          }
+          : node
+      })
+    })
     setEdges(graph.edges)
   }, [graph, setNodes, setEdges])
 
@@ -149,9 +161,9 @@ function TreeEditorInner({ sidebarOffset, treeId }: { sidebarOffset: number; tre
 
       if (connected) {
         const color =
-          edge.data?.relationType === 'SPOUSE_OF'  ? '#f59e0b' :
-          edge.data?.relationType === 'SIBLING_OF' ? '#10b981' :
-                                                     '#3b82f6'
+          edge.data?.relationType === 'SPOUSE_OF' ? '#f59e0b' :
+            edge.data?.relationType === 'SIBLING_OF' ? '#10b981' :
+              '#3b82f6'
         return {
           ...edge,
           style: { ...edge.style, stroke: color, strokeWidth: 3, opacity: 1 },
@@ -209,7 +221,7 @@ function TreeEditorInner({ sidebarOffset, treeId }: { sidebarOffset: number; tre
           nodes={nodes}
           edges={styledEdges}
           onNodesChange={onNodesChange}
-          onEdgesChange={onEdgesChange}
+          onEdgesChange={onEdgesChange} nodesDraggable={false}
           onConnect={undefined}
           nodesConnectable={false}
           nodeTypes={nodeTypes}
@@ -250,7 +262,7 @@ function TreeEditorInner({ sidebarOffset, treeId }: { sidebarOffset: number; tre
         </ReactFlow>
 
         <TreeToolbar
-          memberCount={nodes.length}
+          memberCount={currentTree?._count?.persons || 0}
           selectedName={selectedPerson?.fullName}
         />
       </div>
@@ -272,11 +284,11 @@ function TreeEditorInner({ sidebarOffset, treeId }: { sidebarOffset: number; tre
 // ── Export ────────────────────────────────────────────────────────────────────
 
 export default function TreeEditorPage() {
-  const [searchParams]       = useSearchParams()
-  const treeParam            = Number(searchParams.get('tree'))
-  const treeId               = Number.isInteger(treeParam) && treeParam > 0 ? treeParam : 1
+  const [searchParams] = useSearchParams()
+  const treeParam = Number(searchParams.get('tree'))
+  const treeId = Number.isInteger(treeParam) && treeParam > 0 ? treeParam : 1
   const { sidebarCollapsed } = useAppStore()
-  const sidebarOffset        = sidebarCollapsed ? 68 : 260
+  const sidebarOffset = sidebarCollapsed ? 68 : 260
 
   return (
     <ReactFlowProvider>

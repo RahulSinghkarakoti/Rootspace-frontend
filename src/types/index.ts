@@ -4,15 +4,15 @@ export interface User {
   lastName: string
   email: string
   avatarUrl?: string
-  plan: 'free' | 'pro' | 'family'
-  createdAt: string
+  plan?: 'free' | 'pro' | 'family'
+  createdAt?: string
   role?: string
   isVerified?: boolean
 }
 
 export interface AuthTokens {
   accessToken: string
-  refreshToken: string
+  refreshToken?: string
   expiresAt: number
 }
 

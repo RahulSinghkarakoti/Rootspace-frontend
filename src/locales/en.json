@@ -36,6 +36,16 @@
     "hindi": "Hindi"
   },
   "dialogs": {
+    "editPerson": {
+      "title": "Edit person details",
+      "description": "Update the information of this person. You can also change their relationships.",
+      "fullName": "Full name *",
+      "fullNamePlaceholder": "e.g. Ramesh Kumar",
+      "gender": "Gender",
+      "cancel": "Cancel",
+      "editing": "Editing...",
+      "editPerson": "Edit person"
+    },
     "createTree": {
       "title": "Create new family tree",
       "description": "Give your new tree a name, choose the type, and optionally set a cover image.",
@@ -68,6 +78,23 @@
       "cancel": "Cancel",
       "adding": "Adding...",
       "addPerson": "Add person"
+    },
+    "avatarUpload": {
+      "title": "Upload avatar",
+      "description": "Choose a profile picture for this family member.",
+      "dragDropPrompt": "Drag & drop an image file here, or browse to select.",
+      "dragDropHint": "JPG, PNG, WEBP, or GIF. Max 5 MB.",
+      "browseButton": "Browse files",
+      "uploadAvatar": "Upload avatar",
+      "cancel": "Cancel",
+      "uploading": "Uploading...",
+      "uploadHelp": "The image will be uploaded to Cloudinary and saved on the profile.",
+      "invalidType": "Please use a supported image format.",
+      "fileTooLarge": "The selected image exceeds 5 MB.",
+      "uploadError": "Upload failed. Please try again.",
+      "previewAlt": "Avatar preview",
+      "changeAvatar": "Change avatar",
+      "noFile": "Please select an image before uploading."
     },
     "relations": {
       "parentOf": "Parent ",

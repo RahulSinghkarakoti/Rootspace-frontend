@@ -7,8 +7,8 @@ export const personApi={
 
     getPerson:(treeId:number)=>api.get<ApiResponse<PersonDetail>>(`/person/${treeId}`),
 
-    updatePerson:(treeId:number,personData:PersonDetail)=>api.patch<ApiResponse<PersonDetail>>(`/person/${treeId}`,
+    updatePerson:(personId:string,personData:CreatePersonData)=>api.patch<ApiResponse<PersonDetail>>(`/person/${personId}`,
         personData),
         
-    deletePerson:(personId:string)=>api.delete<ApiResponse<void>>(`/person/${personId}  `),
+    deletePerson:(personId:string)=>api.delete<ApiResponse<void>>(`/person/${personId}`),
 }

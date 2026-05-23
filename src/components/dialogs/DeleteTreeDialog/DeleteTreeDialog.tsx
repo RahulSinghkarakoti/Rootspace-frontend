@@ -14,6 +14,7 @@ import {
 } from "@/components/ui/dialog";
 import { treesApi } from "@/api/treesApi";
 import type { TreeSummary } from "@/types";
+import { useTreeStore } from "@/store/treeStore";
 
 interface DeleteTreeDialogProps {
   children: React.ReactNode;
@@ -28,27 +29,25 @@ export default function DeleteTreeDialog({
 }: DeleteTreeDialogProps) {
   const [open, setOpen] = React.useState(false);
   const [error, setError] = React.useState<string | null>(null);
-  const queryClient = useQueryClient();
 
-  const mutation = useMutation({
-    mutationFn: () => treesApi.delete(tree.id.toString()),
-    onSuccess: () => {
-      setOpen(false);
-      setError(null);
-      queryClient.invalidateQueries({ queryKey: ["trees"] });
-      onSuccess?.();
-    },
-    onError: (err) => {
-      setError(
-        (err as Error)?.message ?? "Could not delete tree. Please try again.",
-      );
-    },
-  });
-
-  const isDeleting = mutation.status === "pending";
+  const isDeleting = useTreeStore(s => s.deletingTree)
+  const deleteTree = useTreeStore(s => s.deleteTree)
 
   const handleDelete = () => {
-    mutation.mutate();
+    setError(null)
+    deleteTree(tree.id)
+      .then(() => {
+        setOpen(false)
+        if (onSuccess) {
+          onSuccess()
+        }
+      })
+      .catch((err) => {
+        const errorMessage =
+          err.response?.data?.message ||
+          "An unexpected error occurred while deleting the tree."
+        setError(errorMessage)
+      })
   };
 
   return (

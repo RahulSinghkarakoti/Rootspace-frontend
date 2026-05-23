@@ -47,7 +47,7 @@ export function useAuth() {
       try {
         const [firstName, lastName] = parseName(name);
         const { data } = await authApi.register(firstName, lastName, email, password);
-        const { user, tokens } = data;
+        const { user, tokens } = data.data;
 
         login({ ...user, name }, tokens);
         navigate('/dashboard');
@@ -80,6 +80,10 @@ export function useAuth() {
    }
   },[navigate])
 
+  const handleGoogleAuth = useCallback(() => {
+    window.location.assign(authApi.googleAuthUrl)
+  }, [])
+
   return {
     user,
     tokens,
@@ -87,6 +91,7 @@ export function useAuth() {
     isLoading,
     login: handleLogin,
     register: handleRegister,
+    signInWithGoogle: handleGoogleAuth,
     logout: handleLogout,
     getProfile
   }

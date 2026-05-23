@@ -13,7 +13,7 @@ export default function LoginPage() {
   const [password, setPassword] = useState('password123')
   const [showPassword, setShowPassword] = useState(false)
   const [error, setError] = useState('')
-  const { login, isLoading } = useAuth()
+  const { login, signInWithGoogle, isLoading } = useAuth()
   const { toggleTheme, theme } = useAppStore()
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -58,6 +58,25 @@ export default function LoginPage() {
             </div>
 
             <form onSubmit={handleSubmit} className="space-y-5">
+              <Button
+                type="button"
+                variant="outline"
+                className="w-full gap-2"
+                onClick={signInWithGoogle}
+                disabled={isLoading}
+              >
+                <span className="flex h-5 w-5 items-center justify-center rounded-full bg-white text-sm font-bold text-blue-600">
+                  G
+                </span>
+                Continue with Google
+              </Button>
+
+              <div className="flex items-center gap-3">
+                <div className="h-px flex-1 bg-border" />
+                <span className="text-xs text-muted-foreground">or</span>
+                <div className="h-px flex-1 bg-border" />
+              </div>
+
               <div className="space-y-1.5">
                 <Label htmlFor="email">Email address</Label>
                 <div className="relative">

@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { useAppStore } from '@/store/appStore'
 import { Sun, Moon } from 'lucide-react'
+import { useAuthStore } from '@/store/authStore'
 
 const features = [
   {
@@ -36,7 +37,7 @@ const stats = [
 
 export default function LandingPage() {
   const { toggleTheme, theme } = useAppStore()
-
+  const { user } = useAuthStore()
   return (
     <div className="min-h-screen bg-background">
       {/* Navbar */}
@@ -63,22 +64,35 @@ export default function LandingPage() {
               </a>
             ))}
           </div>
+          {
+            user ? (
+              <div className="flex items-center gap-3">   <Link to="/dashboard">
+                <Button variant="outline" size="sm" className="text-muted-foreground">
+                  Dashboard
+                </Button>
+              </Link>
+              </div>
+            ) :
+              (
 
-          <div className="flex items-center gap-3">
-            <Button variant="ghost" size="icon" onClick={toggleTheme} className="text-muted-foreground">
-              {theme === 'dark' ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
-            </Button>
-            <Link to="/login">
-              <Button variant="ghost" size="sm" className="text-muted-foreground">
-                Sign in
-              </Button>
-            </Link>
-            <Link to="/register">
-              <Button variant="gold" size="sm">
-                Get Started Free
-              </Button>
-            </Link>
-          </div>
+                <div className="flex items-center gap-3">
+                  <Button variant="ghost" size="icon" onClick={toggleTheme} className="text-muted-foreground">
+                    {theme === 'dark' ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
+                  </Button>
+                  <Link to="/login">
+                    <Button variant="ghost" size="sm" className="text-muted-foreground">
+                      Sign in
+                    </Button>
+                  </Link>
+                  <Link to="/register">
+                    <Button variant="gold" size="sm">
+                      Get Started Free
+                    </Button>
+                  </Link>
+                </div>
+              )
+
+          }
         </div>
       </nav>
 
@@ -104,20 +118,34 @@ export default function LandingPage() {
           <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto mb-10 leading-relaxed">
             Build beautiful family trees, uncover ancestral stories, and connect with relatives across generations — all in one place.
           </p>
+          {
+            user ? (
+              <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+                <Link to="/dashboard">
+                  <Button variant="gold" size="lg" className="gap-2 px-8 text-base shadow-xl shadow-amber-500/20">
+                    View Your Dashboard
+                    <ArrowRight className="h-4 w-4" />
+                  </Button>
+                </Link>
+              </div>
+            ) :
+              (
 
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-            <Link to="/register">
-              <Button variant="gold" size="lg" className="gap-2 px-8 text-base shadow-xl shadow-amber-500/20">
-                Start Your Tree Free
-                <ArrowRight className="h-4 w-4" />
-              </Button>
-            </Link>
-            <Link to="/login">
-              <Button variant="outline" size="lg" className="px-8 text-base">
-                Sign In
-              </Button>
-            </Link>
-          </div>
+                <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+                  <Link to="/register">
+                    <Button variant="gold" size="lg" className="gap-2 px-8 text-base shadow-xl shadow-amber-500/20">
+                      Start Your Tree Free
+                      <ArrowRight className="h-4 w-4" />
+                    </Button>
+                  </Link>
+                  <Link to="/login">
+                    <Button variant="outline" size="lg" className="px-8 text-base">
+                      Sign In
+                    </Button>
+                  </Link>
+                </div>
+              )
+          }
 
           {/* Tree preview placeholder */}
           <div className="mt-16 relative mx-auto max-w-4xl">

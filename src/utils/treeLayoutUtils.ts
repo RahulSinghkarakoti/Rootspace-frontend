@@ -1,16 +1,9 @@
+import { PersonDetail } from '@/types/familyTree'
 import type { Node, Edge } from '@xyflow/react'
 
 // ── Shared Types ──────────────────────────────────────────────────────────────
 
-export interface PersonDetail {
-    id: string
-    fullName: string
-    gender?: 'male' | 'female' | string
-    birthDate?: string | null
-    deathDate?: string | null
-    education?: unknown[]
-    media?: unknown[]
-}
+ 
 
 export interface RelationItem {
     id: string
@@ -269,6 +262,30 @@ function computePositions(
 ): Map<string, PosInfo> {
     const pos = new Map<string, PosInfo>()
     const maxDepth = Math.max(...byDepth.keys(), 0)
+    const unitOf = new Map<string, CoupleUnit>()
+    const SIBLING_GAP = 60
+
+    const unitMembers = (unit: CoupleUnit) =>
+        [unit.primary, unit.spouse].filter(Boolean) as string[]
+
+    const unitWidth = (unit: CoupleUnit) =>
+        unit.spouse ? NODE_W * 2 + COUPLE_GAP : NODE_W
+
+    const setUnitX = (unit: CoupleUnit, x: number) => {
+        const y = pos.get(unit.primary)?.y ?? 0
+        pos.set(unit.primary, { x, y })
+        if (unit.spouse) pos.set(unit.spouse, { x: x + NODE_W + COUPLE_GAP, y })
+    }
+
+    const unitCenter = (unit: CoupleUnit) =>
+        (pos.get(unit.primary)?.x ?? 0) + unitWidth(unit) / 2
+
+    for (const units of byDepth.values()) {
+        for (const unit of units) {
+            unitOf.set(unit.primary, unit)
+            if (unit.spouse) unitOf.set(unit.spouse, unit)
+        }
+    }
 
     // ── Initial left-to-right placement ──────────────────────────────────────
     for (let d = 0; d <= maxDepth; d++) {
@@ -323,7 +340,7 @@ function computePositions(
 
         // ── Centre parents over their children (bottom-up pass) ──────────────
         for (let d = maxDepth - 1; d >= 0; d--) {
-            const units = byDepth.get(d) ?? [] 
+            const units = byDepth.get(d) ?? []
             for (const unit of units) {
                 if (unit.children.length === 0) continue
                 const childXs = unit.children
@@ -373,7 +390,107 @@ function computePositions(
             minX = x + unitW + gap
         }
     }
-     
+
+    const arrangeDepthByParentGroups = (depth: number) => {
+        const units = byDepth.get(depth) ?? []
+        if (units.length === 0) return
+
+        const groups = new Map<string, {
+            units: CoupleUnit[]
+            desiredCenter: number
+            members: string[]
+        }>()
+
+        for (const unit of units) {
+            const parentIds = [...new Set(
+                unitMembers(unit).flatMap(id => [...(childToParents.get(id) ?? [])])
+            )]
+            const parentCenters: number[] = []
+            const seenParents = new Set<string>()
+
+            for (const parentId of parentIds) {
+                const parentUnit = unitOf.get(parentId)
+                const key = parentUnit ? unitMembers(parentUnit).sort().join('|') : parentId
+                if (seenParents.has(key)) continue
+                seenParents.add(key)
+
+                const center = parentUnit
+                    ? unitCenter(parentUnit)
+                    : (pos.get(parentId)?.x ?? 0) + NODE_W / 2
+                parentCenters.push(center)
+            }
+
+            const desiredCenter = parentCenters.length
+                ? parentCenters.reduce((sum, center) => sum + center, 0) / parentCenters.length
+                : unitCenter(unit)
+            const groupKey = parentIds.length
+                ? [...seenParents].sort().join('|')
+                : `no-parent:${unit.primary}`
+            const group = groups.get(groupKey) ?? { units: [], desiredCenter, members: [] }
+
+            group.units.push(unit)
+            group.desiredCenter = desiredCenter
+            group.members.push(...unitMembers(unit))
+            groups.set(groupKey, group)
+        }
+
+        const orderedGroups = [...groups.values()]
+            .map(group => {
+                group.units.sort((a, b) => unitCenter(a) - unitCenter(b))
+                const width = group.units.reduce((sum, unit) => sum + unitWidth(unit), 0)
+                    + Math.max(0, group.units.length - 1) * SIBLING_GAP
+
+                return {
+                    ...group,
+                    width,
+                    desiredLeft: group.desiredCenter - width / 2,
+                }
+            })
+            .sort((a, b) => a.desiredLeft - b.desiredLeft)
+
+        let minLeft = 40
+        for (let i = 0; i < orderedGroups.length; i++) {
+            const group = orderedGroups[i]
+            const prev = orderedGroups[i - 1]
+            const groupGap = prev && !sharesAncestor(group.members, prev.members, childToParents)
+                ? H_GAP * 2
+                : H_GAP
+            const left = Math.max(group.desiredLeft, minLeft)
+            let cursor = left
+
+            for (const unit of group.units) {
+                setUnitX(unit, cursor)
+                cursor += unitWidth(unit) + SIBLING_GAP
+            }
+
+            minLeft = left + group.width + groupGap
+        }
+    }
+
+    const centerParentUnits = () => {
+        for (let d = maxDepth - 1; d >= 0; d--) {
+            const units = byDepth.get(d) ?? []
+            for (const unit of units) {
+                const childUnits = [...new Set(
+                    unit.children.map(childId => unitOf.get(childId)).filter(Boolean)
+                )] as CoupleUnit[]
+                if (childUnits.length === 0) continue
+
+                const childLeft = Math.min(...childUnits.map(childUnit => pos.get(childUnit.primary)?.x ?? 0))
+                const childRight = Math.max(...childUnits.map(childUnit =>
+                    (pos.get(childUnit.primary)?.x ?? 0) + unitWidth(childUnit)
+                ))
+                setUnitX(unit, (childLeft + childRight) / 2 - unitWidth(unit) / 2)
+            }
+        }
+    }
+
+    for (let pass = 0; pass < 3; pass++) {
+        for (let d = 1; d <= maxDepth; d++) arrangeDepthByParentGroups(d)
+        centerParentUnits()
+    }
+    for (let d = 1; d <= maxDepth; d++) arrangeDepthByParentGroups(d)
+
     return pos
 }
 
@@ -401,6 +518,14 @@ function makeNodes(
         for (const c of children) hasParent.add(c)
     }
 
+    const hasSpouse = new Set<string>()
+    for (const relation of relations) {
+        if (relation.type !== 'SPOUSE_OF') continue
+        if (relation.fromId === relation.toId) continue
+        hasSpouse.add(relation.fromId)
+        hasSpouse.add(relation.toId)
+    }
+
     // Person nodes
     const personNodes: Node[] = people.map(person => {
         const info = pos.get(person.id) ?? { x: 0, y: 0 }
@@ -418,9 +543,17 @@ function makeNodes(
             data: {
                 id: person.id,
                 tree_id: treeId,
+                slug: person.slug,
+                birthDate: person.birthDate || null,
+                deathDate: person.deathDate || null,
+                notes: person.notes || "",
+                birthPlace: person.birthPlace || "",
+                avatar: person.avatarUrl ?? undefined,
                 name: person.fullName,
                 gender: person.gender,
                 isRoot: !hasParent.has(person.id),
+                hasParent: hasParent.has(person.id),
+                hasSpouse: hasSpouse.has(person.id),
                 generation: depths.get(person.id) ?? 0,
                 isSelected: person.id === selectedId,
                 dates: yearStr,
@@ -577,7 +710,7 @@ export function buildFamilyTreeGraph(
     treeId: number,
 ): { nodes: Node[]; edges: Edge[] } {
     if (people.length === 0) return { nodes: [], edges: [] }
-
+  console.log('buildFamilyTreeGraph',people.length, relations.length)
     const personIds = people.map(p => p.id)
     const { parentToChildren, childToParents } = buildParentChildMap(relations)
     const spouseOf = buildSpouseMap(relations)

@@ -1,8 +1,17 @@
 import { Handle, Position } from "@xyflow/react";
-import CreatePersonDialog from "../dialogs/CreatePersonDialog/CreatePersonDialog";
+import CreatePersonDialog from "../dialogs/CreateUpdatePersonDialog/CreatePersonDialog";
+import AvatarUploadDialog from "../dialogs/AvatarUploadDialog/AvatarUploadDialog";
+import { Pencil, Camera } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 interface FamilyMemberNodeData {
   id: string;
+  slug: string;
+  fullName: string;
+  birthDate: string | null;
+  deathDate: string | null;
+  notes?: string;
+  birthPlace?: string;
   name: string;
   tree_id: number;
   dates: string;
@@ -10,6 +19,8 @@ interface FamilyMemberNodeData {
   mediaCount?: number;
   avatar?: string;
   isSelected?: boolean;
+  hasParent?: boolean;
+  hasSpouse?: boolean;
   onClick?: (id: string, showInfo: boolean) => void;
 }
 
@@ -21,7 +32,9 @@ const PlusIcon = () => (
 );
 
 export function FamilyMemberNode({ data }: { data: FamilyMemberNodeData }) {
+  const { t } = useTranslation()
   const isFemale = data.gender === "female";
+  const isDeceased = Boolean(data.deathDate);
 
   const initials = data.name
     .split(" ")
@@ -46,49 +59,86 @@ export function FamilyMemberNode({ data }: { data: FamilyMemberNodeData }) {
         className={`
           relative rounded-[14px] bg-white 
           transition-shadow duration-200
-          ${data.isSelected
-            ? isFemale
-              ? "border-2 border-pink-500 shadow-md"
-              : "border-2 border-blue-600 shadow-md"
-            : isFemale
-              ? "border border-pink-200 shadow-sm hover:shadow-md"
-              : "border border-blue-200 shadow-sm hover:shadow-md"
+          ${isDeceased
+            ? "border border-neutral-300 bg-neutral-50 shadow-sm opacity-85"
+            : data.isSelected
+              ? isFemale
+                ? "border-2 border-pink-500 shadow-md"
+                : "border-2 border-blue-600 shadow-md"
+              : isFemale
+                ? "border border-pink-200 shadow-sm hover:shadow-md"
+                : "border border-blue-200 shadow-sm hover:shadow-md"
           }
         `}
         style={{ boxShadow: "0 2px 12px rgba(0,0,0,0.08), 0 1px 3px rgba(0,0,0,0.06)" }}
       >
 
-
+<div className="absolute top-2 right-2 z-10 flex items-center gap-1">
+          <AvatarUploadDialog personId={data.id}>
+            <button
+              onClick={(e) => e.stopPropagation()}
+              title={t('dialogs.avatarUpload.changeAvatar')}
+              className="w-8 h-8 rounded-full bg-white/90 backdrop-blur border border-neutral-200 flex items-center justify-center hover:bg-neutral-100 transition-colors"
+            >
+              <Camera size={14} className="text-neutral-600" />
+            </button>
+          </AvatarUploadDialog>
+          <CreatePersonDialog
+            key={data.id}
+            treeId={data.tree_id}
+            personData={{
+              id: data.id,
+              fullName: data.name,
+              gender: data.gender,
+              birthDate: data.birthDate || null,
+              deathDate: data.deathDate || null,
+              notes: data.notes || "",
+              birthPlace: data.birthPlace || "",
+            }}
+          >
+            <button
+              onClick={(e) => e.stopPropagation()}
+              className="w-8 h-8 rounded-full bg-white/90 backdrop-blur border border-neutral-200 flex items-center justify-center hover:bg-neutral-100 transition-colors"
+            >
+              <Pencil size={14} className="text-neutral-600" />
+            </button>
+          </CreatePersonDialog>
+        </div>
         {/* Avatar */}
         <div
-          onClick={() => data.onClick?.(data.id,true)} className="flex justify-center pt-3.5 pb-2.5">
+          onClick={() => data.onClick?.(data.id, true)}
+          className="flex justify-center pt-4 pb-2.5"
+        >
           <div className="relative inline-block">
             <div
               className={`
-                w-13 h-13 rounded-full flex items-center justify-center
-                text-[17px] font-semibold tracking-tight overflow-hidden
-                ${data.isSelected
-                  ? isFemale
-                    ? "bg-pink-100 ring-2 ring-pink-500"
-                    : "bg-blue-100 ring-2 ring-blue-600"
-                  : isFemale
-                    ? "bg-pink-50 text-pink-900"
-                    : "bg-blue-50 text-blue-900"
+                w-16 h-16 rounded-full flex items-center justify-center overflow-hidden shadow-sm
+                ${isDeceased
+                  ? 'bg-neutral-200 text-neutral-700 grayscale'
+                  : data.isSelected
+                    ? isFemale
+                      ? 'bg-pink-100 ring-2 ring-pink-500'
+                      : 'bg-blue-100 ring-2 ring-blue-600'
+                    : isFemale
+                      ? 'bg-pink-50 text-pink-900'
+                      : 'bg-blue-50 text-blue-900'
                 }
               `}
-              style={{ width: 52, height: 52 }}
             >
-              {data.avatar
-                ? <img src={data.avatar} alt={data.name} className="w-full h-full object-cover" />
-                : <span>{initials}</span>
-              }
+              {data.avatar ? (
+                <img src={data.avatar} alt={data.name} className="w-full h-full object-cover" />
+              ) : (
+                <span className="text-[18px] font-semibold tracking-tight">
+                  {initials}
+                </span>
+              )}
             </div>
 
             {/* Gender dot */}
             <span
               className={`
                 absolute bottom-0.5 right-0.5 w-3 h-3 rounded-full border-2 border-white
-                ${isFemale ? "bg-pink-500" : "bg-blue-600"}
+                ${isDeceased ? 'bg-neutral-500' : isFemale ? 'bg-pink-500' : 'bg-blue-600'}
               `}
             />
           </div>
@@ -96,11 +146,11 @@ export function FamilyMemberNode({ data }: { data: FamilyMemberNodeData }) {
 
         {/* Name + dates */}
         <div className="px-2 pb-3 text-center">
-          <p className="text-[12.5px] font-semibold text-neutral-900 truncate leading-tight">
+          <p className={`text-[12.5px] font-semibold truncate leading-tight ${isDeceased ? "text-neutral-500" : "text-neutral-900"}`}>
             {data.name}
           </p>
           {data.dates && (
-            <p className="text-[10.5px] text-neutral-400 mt-0.5 leading-none">
+            <p className={`text-[10.5px] mt-0.5 leading-none ${isDeceased ? "text-neutral-500" : "text-neutral-400"}`}>
               {data.dates}
             </p>
           )}
@@ -109,18 +159,24 @@ export function FamilyMemberNode({ data }: { data: FamilyMemberNodeData }) {
         {/* Add buttons */}
         {/* Top — parent */}
 
-        <div onClick={(e) => e.stopPropagation()}>
-          <CreatePersonDialog fromId={data.id} treeId={data.tree_id} relationType="CHILD_OF">
-            <AddButton position="top" tooltip="Add parent" onClick={(e) => e.stopPropagation()} />
-          </CreatePersonDialog>
-        </div>
+        {!data.hasParent && (
+          <div onClick={(e) => e.stopPropagation()}>
+            <CreatePersonDialog fromId={data.id} treeId={data.tree_id} relationType="CHILD_OF">
+              <AddButton position="top" tooltip="Add parent" onClick={(e) => e.stopPropagation()} />
+            </CreatePersonDialog>
+          </div>
+        )}
 
         <div onClick={(e) => e.stopPropagation()}>
 
           {/* Right — spouse */}
-          <CreatePersonDialog fromId={data.id} treeId={data.tree_id} relationType="SPOUSE_OF">
-            <AddButton position="right" tooltip="Add spouse" onClick={(e) => e.stopPropagation()} />
-          </CreatePersonDialog>
+          {!data.hasSpouse && (
+            <>
+              <CreatePersonDialog fromId={data.id} treeId={data.tree_id} relationType="SPOUSE_OF">
+                <AddButton position="right" tooltip="Add spouse" onClick={(e) => e.stopPropagation()} />
+              </CreatePersonDialog>
+            </>
+          )}
         </div>
 
         <div onClick={(e) => e.stopPropagation()}>

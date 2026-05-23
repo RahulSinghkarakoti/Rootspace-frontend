@@ -17,6 +17,7 @@ import {
 } from '@/components/ui/dialog'
 import { treesApi } from '@/api/treesApi'
 import type { CreateTreePayload, TreeSummary } from '@/types'
+import { useTreeStore } from '@/store/treeStore'
 
 interface AddTreeDialogProps {
   children: React.ReactNode
@@ -31,8 +32,7 @@ const defaultFormValues: CreateTreePayload = {
 }
 
 export default function AddTreeDialog({ children, onSuccess }: AddTreeDialogProps) {
-  const { t } = useTranslation()
-  const queryClient = useQueryClient()
+  const { t } = useTranslation() 
   const [open, setOpen] = React.useState(false)
   const {
     register,
@@ -43,23 +43,27 @@ export default function AddTreeDialog({ children, onSuccess }: AddTreeDialogProp
     defaultValues: defaultFormValues,
   })
 
+  const creaatingTree = useTreeStore(s => s.creatingTree)
+  const createTree = useTreeStore(s => s.createTree)
+
   React.useEffect(() => {
     if (!open) {
       reset(defaultFormValues)
     }
   }, [open, reset])
-
-  const mutation = useMutation({
-    mutationFn: (payload: CreateTreePayload) => treesApi.create(payload),
-    onSuccess: (response) => {
-      setOpen(false)
-      queryClient.invalidateQueries({ queryKey: ['trees'] })
-      onSuccess?.(response.data.data)
-    },
-  })
+ 
 
   const onSubmit = (formValues: CreateTreePayload) => {
-    mutation.mutate(formValues)
+     createTree(formValues)
+      .then((newTree) => {
+        setOpen(false)
+        if (onSuccess) {
+          onSuccess(newTree)
+        }
+      })
+      .catch((error) => {
+        console.error('Error creating tree:', error)
+      })
   }
 
   return (
@@ -133,8 +137,8 @@ export default function AddTreeDialog({ children, onSuccess }: AddTreeDialogProp
                 {t('dialogs.createTree.cancel')}
               </Button>
             </DialogClose>
-            <Button type="submit" size="sm" className="text-xs" disabled={mutation.isPending}>
-              {mutation.isPending ? t('dialogs.createTree.creating') : t('dialogs.createTree.createTree')}
+            <Button type="submit" size="sm" className="text-xs" disabled={creaatingTree}>
+              {creaatingTree ? t('dialogs.createTree.creating') : t('dialogs.createTree.createTree')}
             </Button>
           </DialogFooter>
         </form>

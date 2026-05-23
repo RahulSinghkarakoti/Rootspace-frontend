@@ -22,8 +22,8 @@ export interface RelationItem {
   id: string
   treeId: number
   fromId: string
-  toId: string
-  type: string
+  toId: string 
+  type: "PARENT_OF" | "CHILD_OF" | "SPOUSE_OF" | "SIBLING_OF"
   metadata?: unknown
   isActive?: boolean
 }
@@ -37,23 +37,28 @@ export interface PersonDetail {
   deathDate: string | null
   notes?: string
   birthPlace?: string
+  avatarUrl?: string
   education: EducationItem[]
   media: MediaItem[]
 }
 
 export interface CreatePersonData {
+  id?: string
+  slug?: string
   fullName: string
   gender: 'male' | 'female' | null
   birthDate: string | null
   deathDate: string | null
   notes?: string
   birthPlace?: string
+  avatarUrl?: string | null
   relations?: {
     toId: string
-    type: 'PARENT_OF' | 'SPOUSE_OF' | 'SIBLING_OF'
+    type: 'PARENT_OF' | 'CHILD_OF' | 'SPOUSE_OF' | 'SIBLING_OF'
     metadata?: object
     isActive?: boolean
   }[]
 }
 
-   
+
+

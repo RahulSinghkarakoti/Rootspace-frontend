@@ -8,6 +8,7 @@ import { ProtectedRoute, PublicOnlyRoute } from '@/components/auth/ProtectedRout
 import LandingPage from '@/pages/LandingPage'
 import LoginPage from '@/pages/LoginPage'
 import RegisterPage from '@/pages/RegisterPage'
+import GoogleCallbackPage from '@/pages/GoogleCallbackPage'
 import DashboardPage from '@/pages/dashboard/DashboardPage'
 import TreeEditorPage from '@/pages/dashboard/TreeEditorPage'
 import {
@@ -52,6 +53,7 @@ export default function App() {
                 </PublicOnlyRoute>
               }
             />
+            <Route path="/auth/google/callback" element={<GoogleCallbackPage />} />
 
             {/* Protected dashboard routes */}
             <Route

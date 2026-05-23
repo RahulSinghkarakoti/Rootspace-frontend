@@ -1,4 +1,4 @@
-import { GitBranch, Plus, ExternalLink, Share2, Trash2 } from "lucide-react";
+import { GitBranch, Plus, ExternalLink, Share2, Trash2, RefreshCcw, MoreVertical } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
@@ -7,20 +7,25 @@ import { treesApi } from "@/api/treesApi";
 import AddTreeDialog from "@/components/dialogs/AddTreeDialog";
 import type { TreeSummary } from "@/types";
 import DeleteTreeDialog from "@/components/dialogs/DeleteTreeDialog";
+import { useTreeStore } from "@/store/treeStore";
+import { useEffect } from "react";
+import * as DropdownMenu from "@radix-ui/react-dropdown-menu";
 
 export default function TreesPage() {
-  const {
-    data: trees,
-    isLoading,
-    isError,
-    error,
-  } = useQuery<TreeSummary[], Error>({
-    queryKey: ["trees"],
-    queryFn: async () => {
-      const response = await treesApi.getAll();
-      return response.data.data;
-    },
-  });
+
+  const loadAllTrees = useTreeStore(s => s.loadAllTrees)
+  const isLoading = useTreeStore(s => s.isLoading)
+  const error = useTreeStore(s => s.error)
+  const trees = useTreeStore(s => s.trees)
+  const treesLoaded = useTreeStore(s => s.treesLoaded)
+  const setTreesLoaded = useTreeStore(s => s.setTreeLoaded)
+
+  useEffect(() => {
+    if (!treesLoaded) {
+      loadAllTrees().then(() => setTreesLoaded(true))
+    }
+  }, [loadAllTrees, setTreesLoaded, treesLoaded])
+
 
   if (isLoading) {
     return (
@@ -30,10 +35,10 @@ export default function TreesPage() {
     );
   }
 
-  if (isError) {
+  if (error) {
     return (
       <div className="rounded-xl border border-red-200 bg-red-50 p-8 text-center text-sm text-foreground">
-        Unable to load trees: {(error as Error)?.message ?? "Unexpected error"}
+        Unable to load trees: {typeof error === 'string' ? error : 'An unexpected error occurred.'}
       </div>
     );
   }
@@ -42,16 +47,25 @@ export default function TreesPage() {
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-xl font-bold">My Trees</h1>
+          <h1 className="text-xl font-bold">My Trees
+
+          </h1>
           <p className="text-xs text-muted-foreground">
             Manage all your family trees
           </p>
         </div>
-        <AddTreeDialog>
-          <Button variant="gold" size="sm" className="gap-1.5 text-xs">
-            <Plus className="h-3.5 w-3.5" /> New Tree
+        <div className="flex items-center gap-2">
+
+          <AddTreeDialog>
+            <Button variant="gold" size="sm" className="gap-1.5 text-xs">
+              <Plus className="h-3.5 w-3.5" /> New Tree
+            </Button>
+          </AddTreeDialog>
+          <Button variant="outline" size="sm" className="gap-1.5 text-xs"
+            onClick={() => loadAllTrees()}>
+            <RefreshCcw className="h-3.5 w-3.5" /> Refresh
           </Button>
-        </AddTreeDialog>
+        </div>
       </div>
 
       {trees?.length ? (
@@ -89,16 +103,45 @@ export default function TreesPage() {
                     <ExternalLink className="h-3 w-3" /> Open
                   </Button>
                 </Link>
-                <DeleteTreeDialog tree={tree}>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="h-7 w-7 text-muted-foreground hover:text-red-500 hover:bg-red-50"
-                    aria-label="Delete item"
-                  >
-                    <Trash2 className="h-3.5 w-3.5" />
-                  </Button>
-                </DeleteTreeDialog>
+                <DropdownMenu.Root>
+                  <DropdownMenu.Trigger asChild>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-7 w-7 text-muted-foreground"
+                    >
+                      <MoreVertical className="h-4 w-4" />
+                    </Button>
+                  </DropdownMenu.Trigger>
+
+                  <DropdownMenu.Portal>
+                    <DropdownMenu.Content
+                      sideOffset={4}
+                      className="min-w-[180px] rounded-md border bg-background p-1 shadow-md"
+                    >
+                      <DropdownMenu.Item className="flex items-center gap-2 rounded-sm px-2 py-1.5 text-sm cursor-pointer outline-none hover:bg-muted">
+                        <Share2 className="h-3.5 w-3.5 text-muted-foreground" />
+                        <span>Share</span>
+                      </DropdownMenu.Item>
+
+                      <DropdownMenu.Item className="flex items-center gap-2 rounded-sm px-2 py-1.5 text-sm cursor-pointer outline-none hover:bg-muted">
+                        <ExternalLink className="h-3.5 w-3.5 text-muted-foreground" />
+                        <span>View public site</span>
+                      </DropdownMenu.Item>
+
+                      <DeleteTreeDialog tree={tree} >
+                        <DropdownMenu.Item
+                          onSelect={(e) => e.preventDefault()}
+                          className="flex items-center gap-2 rounded-sm px-2 py-1.5 text-sm cursor-pointer outline-none text-red-500 hover:bg-red-50"
+                        >
+                          <Trash2 className="h-3.5 w-3.5" />
+                          <span>Delete</span>
+                        </DropdownMenu.Item>
+                      </DeleteTreeDialog>
+                    </DropdownMenu.Content>
+                  </DropdownMenu.Portal>
+                </DropdownMenu.Root>
+
               </div>
             </div>
           ))}
