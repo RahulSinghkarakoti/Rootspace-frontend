@@ -6,6 +6,7 @@ import { useTranslation } from "react-i18next";
 
 interface FamilyMemberNodeData {
   id: string;
+  createdByMemberId?: string | null;
   slug: string;
   fullName: string;
   birthDate: string | null;
@@ -22,6 +23,12 @@ interface FamilyMemberNodeData {
   hasParent?: boolean;
   hasSpouse?: boolean;
   onClick?: (id: string, showInfo: boolean) => void;
+  canAddPerson?: boolean;
+  canEditPerson?: boolean;
+  canUploadAvatar?: boolean;
+  sharedToken?: string;
+  onSharedPersonCreated?: (payload: any) => void;
+  onSharedPersonUpdated?: (person: any) => void;
 }
 
 const PlusIcon = () => (
@@ -35,6 +42,9 @@ export function FamilyMemberNode({ data }: { data: FamilyMemberNodeData }) {
   const { t } = useTranslation()
   const isFemale = data.gender === "female";
   const isDeceased = Boolean(data.deathDate);
+  const canAddPerson = data.canAddPerson ?? true;
+  const canEditPerson = data.canEditPerson ?? true;
+  const canUploadAvatar = data.canUploadAvatar ?? true;
 
   const initials = data.name
     .split(" ")
@@ -73,36 +83,44 @@ export function FamilyMemberNode({ data }: { data: FamilyMemberNodeData }) {
         style={{ boxShadow: "0 2px 12px rgba(0,0,0,0.08), 0 1px 3px rgba(0,0,0,0.06)" }}
       >
 
-<div className="absolute top-2 right-2 z-10 flex items-center gap-1">
-          <AvatarUploadDialog personId={data.id}>
-            <button
-              onClick={(e) => e.stopPropagation()}
-              title={t('dialogs.avatarUpload.changeAvatar')}
-              className="w-8 h-8 rounded-full bg-white/90 backdrop-blur border border-neutral-200 flex items-center justify-center hover:bg-neutral-100 transition-colors"
+        <div className="absolute top-2 right-2 z-10 flex items-center gap-1">
+          {canUploadAvatar && (
+            <AvatarUploadDialog personId={data.id} sharedToken={data.sharedToken}>
+              <button
+                onClick={(e) => e.stopPropagation()}
+                title={t('dialogs.avatarUpload.changeAvatar')}
+                className="w-8 h-8 rounded-full bg-white/90 backdrop-blur border border-neutral-200 flex items-center justify-center hover:bg-neutral-100 transition-colors"
+              >
+                <Camera size={14} className="text-neutral-600" />
+              </button>
+            </AvatarUploadDialog>
+          )}
+          {canEditPerson && (
+            <CreatePersonDialog
+              key={data.id}
+              treeId={data.tree_id}
+              personData={{
+                id: data.id,
+                createdByMemberId: data.createdByMemberId,
+                fullName: data.name,
+                gender: data.gender,
+                birthDate: data.birthDate || null,
+                deathDate: data.deathDate || null,
+                notes: data.notes || "",
+                birthPlace: data.birthPlace || "",
+              }}
+              sharedToken={data.sharedToken}
+              onSharedSuccess={data.onSharedPersonCreated}
+              onSharedUpdate={data.onSharedPersonUpdated}
             >
-              <Camera size={14} className="text-neutral-600" />
-            </button>
-          </AvatarUploadDialog>
-          <CreatePersonDialog
-            key={data.id}
-            treeId={data.tree_id}
-            personData={{
-              id: data.id,
-              fullName: data.name,
-              gender: data.gender,
-              birthDate: data.birthDate || null,
-              deathDate: data.deathDate || null,
-              notes: data.notes || "",
-              birthPlace: data.birthPlace || "",
-            }}
-          >
-            <button
-              onClick={(e) => e.stopPropagation()}
-              className="w-8 h-8 rounded-full bg-white/90 backdrop-blur border border-neutral-200 flex items-center justify-center hover:bg-neutral-100 transition-colors"
-            >
-              <Pencil size={14} className="text-neutral-600" />
-            </button>
-          </CreatePersonDialog>
+              <button
+                onClick={(e) => e.stopPropagation()}
+                className="w-8 h-8 rounded-full bg-white/90 backdrop-blur border border-neutral-200 flex items-center justify-center hover:bg-neutral-100 transition-colors"
+              >
+                <Pencil size={14} className="text-neutral-600" />
+              </button>
+            </CreatePersonDialog>
+          )}
         </div>
         {/* Avatar */}
         <div
@@ -159,9 +177,15 @@ export function FamilyMemberNode({ data }: { data: FamilyMemberNodeData }) {
         {/* Add buttons */}
         {/* Top — parent */}
 
-        {!data.hasParent && (
+        {canAddPerson && !data.hasParent && (
           <div onClick={(e) => e.stopPropagation()}>
-            <CreatePersonDialog fromId={data.id} treeId={data.tree_id} relationType="CHILD_OF">
+            <CreatePersonDialog
+              fromId={data.id}
+              treeId={data.tree_id}
+              relationType="CHILD_OF"
+              sharedToken={data.sharedToken}
+              onSharedSuccess={data.onSharedPersonCreated}
+            >
               <AddButton position="top" tooltip="Add parent" onClick={(e) => e.stopPropagation()} />
             </CreatePersonDialog>
           </div>
@@ -170,9 +194,15 @@ export function FamilyMemberNode({ data }: { data: FamilyMemberNodeData }) {
         <div onClick={(e) => e.stopPropagation()}>
 
           {/* Right — spouse */}
-          {!data.hasSpouse && (
+          {canAddPerson && !data.hasSpouse && (
             <>
-              <CreatePersonDialog fromId={data.id} treeId={data.tree_id} relationType="SPOUSE_OF">
+              <CreatePersonDialog
+                fromId={data.id}
+                treeId={data.tree_id}
+                relationType="SPOUSE_OF"
+                sharedToken={data.sharedToken}
+                onSharedSuccess={data.onSharedPersonCreated}
+              >
                 <AddButton position="right" tooltip="Add spouse" onClick={(e) => e.stopPropagation()} />
               </CreatePersonDialog>
             </>
@@ -182,9 +212,17 @@ export function FamilyMemberNode({ data }: { data: FamilyMemberNodeData }) {
         <div onClick={(e) => e.stopPropagation()}>
 
           {/* Bottom — child */}
-          <CreatePersonDialog fromId={data.id} treeId={data.tree_id} relationType="PARENT_OF">
-            <AddButton position="bottom" tooltip="Add child" onClick={(e) => e.stopPropagation()} />
-          </CreatePersonDialog>
+          {canAddPerson && (
+            <CreatePersonDialog
+              fromId={data.id}
+              treeId={data.tree_id}
+              relationType="PARENT_OF"
+              sharedToken={data.sharedToken}
+              onSharedSuccess={data.onSharedPersonCreated}
+            >
+              <AddButton position="bottom" tooltip="Add child" onClick={(e) => e.stopPropagation()} />
+            </CreatePersonDialog>
+          )}
         </div>
 
       </div>

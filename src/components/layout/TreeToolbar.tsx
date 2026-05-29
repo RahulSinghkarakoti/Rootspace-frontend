@@ -7,9 +7,10 @@ import { useTreeStore } from "../../store/treeStore";
 interface Props {
   memberCount: number;
   selectedName?: string;
+  toggleMinimap: () => void;
 }
 
-export function TreeToolbar({ memberCount, selectedName }: Props) {
+export function TreeToolbar({ memberCount, selectedName, toggleMinimap }: Props) {
   const { zoomIn, zoomOut, fitView } = useReactFlow();
   const currentTreeId = useTreeStore((state) => state.currentTreeId)
 
@@ -29,7 +30,7 @@ export function TreeToolbar({ memberCount, selectedName }: Props) {
       {/* Top-right toolbar */}
       <div className="absolute top-4 right-4 z-20 flex flex-col gap-2">
         <div className="flex flex-col gap-1 p-2 rounded-2xl bg-card/90 backdrop-blur-md border border-white/10 shadow-xl">
-         
+
           <ToolBtn title="Zoom In" onClick={() => zoomIn({ duration: 200 })}>
             <Plus className="w-4 h-4" />
           </ToolBtn>
@@ -42,6 +43,9 @@ export function TreeToolbar({ memberCount, selectedName }: Props) {
             onClick={() => fitView({ duration: 400, padding: 0.1 })}
           >
             <Maximize2 className="w-4 h-4" />
+          </ToolBtn>
+          <ToolBtn title="Toggle Minimap" onClick={toggleMinimap}>
+            <ZoomIn className="w-4 h-4" />
           </ToolBtn>
           <ToolBtn title="Export PNG" onClick={exportPng}>
             <Download className="w-4 h-4" />
@@ -91,10 +95,9 @@ function ToolBtn({
       onClick={onClick}
       className={`
         flex items-center justify-center w-8 h-8 rounded-xl transition-all duration-150
-        ${
-          gold
-            ? "bg-amber-500 hover:bg-amber-400 text-black shadow-lg shadow-amber-500/30"
-            : "text-muted-foreground hover:text-foreground hover:bg-white/10"
+        ${gold
+          ? "bg-amber-500 hover:bg-amber-400 text-black shadow-lg shadow-amber-500/30"
+          : "text-muted-foreground hover:text-foreground hover:bg-white/10"
         }
       `}
     >

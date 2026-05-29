@@ -1,3 +1,5 @@
+import { treeLink } from "./familyTree"
+
 export interface User {
   id: string
   firstName: string
@@ -62,12 +64,14 @@ export interface TreeSummary {
   slug: string
   type: TreeType
   createdBy: string | null
+  linkHistory?: treeLink[]
   _count: {
     persons: number
   }
 }
 
 export interface ApiResponse<T> {
+  link: any
   success: boolean
   message: string
   data: T

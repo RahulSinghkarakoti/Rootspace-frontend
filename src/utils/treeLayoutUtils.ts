@@ -287,6 +287,23 @@ function computePositions(
         }
     }
 
+    const subtreeWidth = new Map<CoupleUnit, number>()
+    for (let d = maxDepth; d >= 0; d--) {
+        const units = byDepth.get(d) ?? []
+        for (const unit of units) {
+            const childUnits = [...new Set(
+                unit.children
+                    .map(childId => unitOf.get(childId))
+                    .filter((v): v is CoupleUnit => v !== undefined)
+            )]
+            const childSpan = childUnits.length === 0
+                ? 0
+                : childUnits.reduce((sum, child) => sum + (subtreeWidth.get(child) ?? unitWidth(child)), 0)
+                    + Math.max(0, childUnits.length - 1) * SIBLING_GAP
+            subtreeWidth.set(unit, childUnits.length === 0 ? unitWidth(unit) : Math.max(unitWidth(unit), childSpan))
+        }
+    }
+
     // ── Initial left-to-right placement ──────────────────────────────────────
     for (let d = 0; d <= maxDepth; d++) {
         const units = byDepth.get(d) ?? []
@@ -370,7 +387,7 @@ function computePositions(
         for (let i = 0; i < units.length; i++) {
             const unit = units[i]
             const prevUnit = units[i - 1]
-            const unitW = unit.spouse ? NODE_W * 2 + COUPLE_GAP : NODE_W
+            const unitW = subtreeWidth.get(unit) ?? (unit.spouse ? NODE_W * 2 + COUPLE_GAP : NODE_W)
 
             const isNewClan = prevUnit ? !sharesAncestor(
                 [unit.primary, unit.spouse].filter(Boolean) as string[],
@@ -437,7 +454,7 @@ function computePositions(
         const orderedGroups = [...groups.values()]
             .map(group => {
                 group.units.sort((a, b) => unitCenter(a) - unitCenter(b))
-                const width = group.units.reduce((sum, unit) => sum + unitWidth(unit), 0)
+                const width = group.units.reduce((sum, unit) => sum + (subtreeWidth.get(unit) ?? unitWidth(unit)), 0)
                     + Math.max(0, group.units.length - 1) * SIBLING_GAP
 
                 return {
@@ -459,8 +476,10 @@ function computePositions(
             let cursor = left
 
             for (const unit of group.units) {
-                setUnitX(unit, cursor)
-                cursor += unitWidth(unit) + SIBLING_GAP
+                const span = subtreeWidth.get(unit) ?? unitWidth(unit)
+                const unitX = cursor + (span - unitWidth(unit)) / 2
+                setUnitX(unit, unitX)
+                cursor += span + SIBLING_GAP
             }
 
             minLeft = left + group.width + groupGap
@@ -542,6 +561,7 @@ function makeNodes(
             position: { x: info.x, y: info.y },
             data: {
                 id: person.id,
+                createdByMemberId: person.createdByMemberId ?? null,
                 tree_id: treeId,
                 slug: person.slug,
                 birthDate: person.birthDate || null,

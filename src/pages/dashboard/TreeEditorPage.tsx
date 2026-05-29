@@ -84,7 +84,7 @@ function ErrorOverlay({ message, onRetry }: { message: string; onRetry: () => vo
 function TreeEditorInner({ sidebarOffset, treeId }: { sidebarOffset: number; treeId: number }) {
   const [selectedId, setSelectedId] = useState<string | null>(null)
   const [sidebarOpen, setSidebarOpen] = useState(false)
-
+  const [showMinMap, setShowMinMap] = useState(false)
   const people = useTreeStore(s => s.people)
   const relations = useTreeStore(s => s.relations)
   const isLoading = useTreeStore(s => s.isLoading)
@@ -242,20 +242,24 @@ function TreeEditorInner({ sidebarOffset, treeId }: { sidebarOffset: number; tre
             size={1.4}
             color="hsl(var(--foreground) / 0.12)"
           />
+          {
+            showMinMap && (
 
-          <MiniMap
-            nodeColor={node => {
-              const d = node.data as any
-              return d?.gender === 'female' ? 'hsl(350,60%,55%)' : 'hsl(210,60%,55%)'
-            }}
-            maskColor="hsl(var(--background) / 0.75)"
-            style={{
-              background: 'hsl(var(--card))',
-              border: '1px solid hsl(var(--border))',
-              borderRadius: 10,
-            }}
-          />
+              <MiniMap
+                nodeColor={node => {
+                  const d = node.data as any
+                  return d?.gender === 'female' ? 'hsl(350,60%,55%)' : 'hsl(210,60%,55%)'
+                }}
+                maskColor="hsl(var(--background) / 0.75)"
+                style={{
+                  background: 'hsl(var(--card))',
+                  border: '1px solid hsl(var(--border))',
+                  borderRadius: 10,
+                }}
+              />
 
+            )
+          }
           <Panel position="top-right" style={{ margin: 0, top: 16, right: 16 }}>
             {/* intentionally empty – toolbar rendered outside */}
           </Panel>
@@ -264,6 +268,7 @@ function TreeEditorInner({ sidebarOffset, treeId }: { sidebarOffset: number; tre
         <TreeToolbar
           memberCount={currentTree?._count?.persons || 0}
           selectedName={selectedPerson?.fullName}
+          toggleMinimap={() => setShowMinMap((s) => !s)}
         />
       </div>
 

@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { TreePine, Mail, Lock, Eye, EyeOff, ArrowRight, Loader2 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -10,17 +10,22 @@ import { Sun, Moon } from 'lucide-react'
 
 export default function LoginPage() {
   const [email, setEmail] = useState('demo@rootspace.app')
-  const [password, setPassword] = useState('password123')
+  const [password, setPassword] = useState('4!Ed98j9w5Laq@e')
   const [showPassword, setShowPassword] = useState(false)
   const [error, setError] = useState('')
   const { login, signInWithGoogle, isLoading } = useAuth()
   const { toggleTheme, theme } = useAppStore()
+  const navigate = useNavigate()
+  const location = useLocation()
+  const from = (location.state as { from?: { pathname: string; search?: string } })?.from
+  const redirectTo = from ? `${from.pathname}${from.search ?? ''}` : '/dashboard'
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setError('')
     try {
       await login(email, password)
+      navigate(redirectTo, { replace: true })
     } catch {
       setError('Invalid email or password. Please try again.')
     }
@@ -62,7 +67,7 @@ export default function LoginPage() {
                 type="button"
                 variant="outline"
                 className="w-full gap-2"
-                onClick={signInWithGoogle}
+                onClick={() => signInWithGoogle(redirectTo)}
                 disabled={isLoading}
               >
                 <span className="flex h-5 w-5 items-center justify-center rounded-full bg-white text-sm font-bold text-blue-600">
@@ -151,7 +156,7 @@ export default function LoginPage() {
 
             <p className="mt-6 text-center text-sm text-muted-foreground">
               Don't have an account?{' '}
-              <Link to="/register" className="text-amber-500 font-medium hover:underline">
+              <Link to="/register" state={location.state} className="text-amber-500 font-medium hover:underline">
                 Create one free
               </Link>
             </p>
@@ -159,7 +164,7 @@ export default function LoginPage() {
             <div className="mt-8 rounded-xl bg-amber-500/10 border border-amber-500/20 p-3">
               <p className="text-xs text-amber-600 dark:text-amber-400 font-medium mb-1">Demo credentials</p>
               <p className="text-xs text-muted-foreground">Email: demo@rootspace.app</p>
-              <p className="text-xs text-muted-foreground">Password: password123</p>
+              <p className="text-xs text-muted-foreground">Password: 4!Ed98j9w5Laq@e</p>
             </div>
           </div>
         </div>

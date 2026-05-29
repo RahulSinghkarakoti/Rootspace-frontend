@@ -5,6 +5,7 @@ import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { useToast } from "@/components/ui/toast";
 import {
   Dialog,
   DialogTrigger,
@@ -13,11 +14,13 @@ import {
   DialogFooter,
   DialogTitle,
   DialogDescription,
-  DialogClose,
+  DialogCloseButton,
 } from "@/components/ui/dialog";
 import { CreatePersonData, PersonDetail, RelationItem } from "@/types/familyTree";
 import { personApi } from "@/api/personApi";
+import { treesApi } from "@/api/treesApi";
 import { useTreeStore } from "../../../store/treeStore";
+import { getErrorMessage } from "@/lib/errors";
 
 interface CreateUpdatePersonDialogProps {
   children: React.ReactNode;
@@ -26,6 +29,13 @@ interface CreateUpdatePersonDialogProps {
   relationType?: string;
   fromId?: string; // ID of the person to link this new person to
   personData?: CreatePersonData; // Optional pre-filled data for the form
+  sharedToken?: string;
+  onSharedSuccess?: (payload: {
+    newPerson: PersonDetail
+    createdRelations: RelationItem[]
+    unknownSpouse?: PersonDetail | null
+  }) => void;
+  onSharedUpdate?: (person: PersonDetail) => void;
 }
 
 const defaultFormValues: CreatePersonData = {
@@ -73,9 +83,13 @@ const CreateUpdatePersonDialog: React.FC<CreateUpdatePersonDialogProps> = ({
   treeId,
   relationType,
   fromId = null,
-  personData = null
+  personData = null,
+  sharedToken,
+  onSharedSuccess,
+  onSharedUpdate,
 }) => {
   const { t } = useTranslation();
+  const toast = useToast();
   const addPerson = useTreeStore((state) => state.addPerson)
   const upsertPerson = useTreeStore((state) => state.upsertPerson)
   const addRelations = useTreeStore((state) => state.addRelations)
@@ -121,10 +135,21 @@ const CreateUpdatePersonDialog: React.FC<CreateUpdatePersonDialogProps> = ({
     mutationFn: async (data: CreatePersonData) => {
       if (isEditMode && personData?.id) {
         console.log("Updating person with data:", data);
+        if (sharedToken) {
+          return treesApi.updateSharedPerson(
+            sharedToken,
+            personData.id,
+            data
+          );
+        }
         return personApi.updatePerson(
           personData.id,
           data
         );
+      }
+
+      if (sharedToken) {
+        return treesApi.createSharedPerson(sharedToken, data);
       }
 
       return personApi.createPerson(treeId, data);
@@ -136,14 +161,24 @@ const CreateUpdatePersonDialog: React.FC<CreateUpdatePersonDialogProps> = ({
 
       if (isEditMode) {
         upsertPerson(data);
+        onSharedUpdate?.(data);
+        toast.success("Person updated", `${data.fullName} has been saved.`);
       } else {
         const { createdRelations: relations = [], newPerson, unknownSpouse } = data;
-        addPerson(newPerson);
-        unknownSpouse ? addPerson(unknownSpouse) : null;
+        addPerson(normalizePerson(newPerson));
+        unknownSpouse ? addPerson(normalizePerson(unknownSpouse)) : null;
         addRelations(relations);
+        onSharedSuccess?.({ newPerson, createdRelations: relations, unknownSpouse });
+        toast.success("Person added", `${newPerson.fullName} was added to the tree.`);
       }
 
       setOpen(false);
+    },
+    onError: (error) => {
+      toast.error(
+        isEditMode ? "Unable to update person" : "Unable to add person",
+        getErrorMessage(error, "Please check the person details and try again."),
+      );
     },
   });
 
@@ -172,22 +207,16 @@ const CreateUpdatePersonDialog: React.FC<CreateUpdatePersonDialogProps> = ({
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>{children}</DialogTrigger>
-      <DialogContent
-        className={
-          "flex flex-col gap-0 p-0 overflow-hidden w-full h-[100dvh] rounded-none " +
-          "sm:h-auto sm:max-h-[90dvh] sm:rounded-xl sm:max-w-2xl lg:max-w-3xl"
-        }
-      >
-        <DialogHeader className="shrink-0 px-5 pt-5 pb-3 border-b border-border">
-          <DialogTitle className="text-base leading-snug">
-
+      <DialogContent className="flex flex-col gap-0 p-0 overflow-hidden w-full h-[100dvh] sm:h-auto sm:max-h-[90dvh] sm:rounded-lg sm:max-w-2xl lg:max-w-3xl">
+        <DialogCloseButton />
+        <DialogHeader className="shrink-0 px-6 pt-6 pb-3 border-b border-border">
+          <DialogTitle>
             {isEditMode
               ? t("dialogs.editPerson.title")
               : t("dialogs.createPerson.title")}
-
           </DialogTitle>
           {fromId && (
-            <DialogDescription className="text-xs mt-0.5">
+            <DialogDescription>
               {t("dialogs.createPerson.description")}
             </DialogDescription>
           )}
@@ -341,11 +370,11 @@ const CreateUpdatePersonDialog: React.FC<CreateUpdatePersonDialogProps> = ({
         </form>
 
         <div className="shrink-0 flex justify-end gap-2 px-5 py-3 border-t border-border bg-background">
-          <DialogClose asChild>
+          <DialogCloseButton asChild>
             <Button type="button" variant="outline" size="sm">
               {t("dialogs.createPerson.cancel")}
             </Button>
-          </DialogClose>
+          </DialogCloseButton>
           <Button
             type="submit"
             form="create-person-form"

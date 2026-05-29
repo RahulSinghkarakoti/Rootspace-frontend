@@ -1,0 +1,14 @@
+{
+  "workbench.colorCustomizations": {
+    "titleBar.activeBackground": "#0d47a1",
+    "titleBar.activeForeground": "#ffffff",
+
+    "activityBar.background": "#1565c0",
+    "activityBar.foreground": "#ffffff",
+
+    "statusBar.background": "#1976d2",
+    "statusBar.foreground": "#ffffff"
+  },
+  "window.title": "⚛️ React Frontend",
+    "workbench.colorTheme": "Tokyo Night Storm", 
+}

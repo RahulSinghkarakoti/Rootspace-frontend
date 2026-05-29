@@ -17,12 +17,13 @@ export interface AvatarUploadResult {
 }
 
 export const uploadApi = {
-  getAvatarUploadSignature: () =>
-    api.get<ApiResponse<AvatarUploadSignature>>('/upload/signature'),
+  getAvatarUploadSignature: (personId?: string, type?: string, shareToken?: string) =>
+    api.get<ApiResponse<AvatarUploadSignature>>('/upload/signature', { params: { personId, type, shareToken } }),
 
   saveAvatar: (payload: {
     personId: string
     cloudinaryUrl: string
     publicId: string
+    shareToken?: string
   }) => api.post<ApiResponse<AvatarUploadResult>>('/upload/avatar', payload),
 }

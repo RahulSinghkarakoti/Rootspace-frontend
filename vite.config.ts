@@ -4,6 +4,7 @@ import path from 'path'
 
 export default defineConfig({
   plugins: [react()],
+  server:{allowedHosts: [  'https://slow-knives-yell.loca.lt']},
   resolve: {
     alias: {
       '@': path.resolve(__dirname, './src'),

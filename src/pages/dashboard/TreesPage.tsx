@@ -4,9 +4,8 @@ import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { treesApi } from "@/api/treesApi";
-import AddTreeDialog from "@/components/dialogs/AddTreeDialog";
 import type { TreeSummary } from "@/types";
-import DeleteTreeDialog from "@/components/dialogs/DeleteTreeDialog";
+import { DeleteTreeDialog, AddTreeDialog, ShareTreeDialog } from "@/components/dialogs";
 import { useTreeStore } from "@/store/treeStore";
 import { useEffect } from "react";
 import * as DropdownMenu from "@radix-ui/react-dropdown-menu";
@@ -71,7 +70,9 @@ export default function TreesPage() {
       {trees?.length ? (
         <div className="space-y-2">
           {trees.map((tree) => (
+                
             <div
+              
               key={tree.id}
               className="flex items-center justify-between gap-3 p-3 rounded-lg border border-border hover:border-amber-500/30 hover:bg-amber-500/5 transition-all group"
             >
@@ -119,15 +120,14 @@ export default function TreesPage() {
                       sideOffset={4}
                       className="min-w-[180px] rounded-md border bg-background p-1 shadow-md"
                     >
-                      <DropdownMenu.Item className="flex items-center gap-2 rounded-sm px-2 py-1.5 text-sm cursor-pointer outline-none hover:bg-muted">
-                        <Share2 className="h-3.5 w-3.5 text-muted-foreground" />
-                        <span>Share</span>
-                      </DropdownMenu.Item>
-
-                      <DropdownMenu.Item className="flex items-center gap-2 rounded-sm px-2 py-1.5 text-sm cursor-pointer outline-none hover:bg-muted">
-                        <ExternalLink className="h-3.5 w-3.5 text-muted-foreground" />
-                        <span>View public site</span>
-                      </DropdownMenu.Item>
+                      <ShareTreeDialog treeId={tree.id} onClose={() => { }} linkHistory={tree.linkHistory || []}>
+                        <DropdownMenu.Item
+                          onSelect={(e) => e.preventDefault()}
+                         className="flex items-center gap-2 rounded-sm px-2 py-1.5 text-sm cursor-pointer outline-none hover:bg-muted">
+                          <Share2 className="h-3.5 w-3.5 text-muted-foreground" />
+                          <span>Share</span>
+                        </DropdownMenu.Item>
+                      </ShareTreeDialog> 
 
                       <DeleteTreeDialog tree={tree} >
                         <DropdownMenu.Item
@@ -143,7 +143,7 @@ export default function TreesPage() {
                 </DropdownMenu.Root>
 
               </div>
-            </div>
+            </div> 
           ))}
         </div>
       ) : (

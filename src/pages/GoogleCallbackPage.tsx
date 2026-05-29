@@ -23,6 +23,8 @@ const decodeBase64Url = (value: string) => {
   return atob(`${base64}${padding}`)
 }
 
+const GOOGLE_REDIRECT_STORAGE_KEY = 'rootspace-auth-redirect'
+
 export default function GoogleCallbackPage() {
   const [searchParams] = useSearchParams()
   const navigate = useNavigate()
@@ -43,7 +45,10 @@ export default function GoogleCallbackPage() {
         accessToken: decoded.accessToken,
         expiresAt: decoded.expiresAt,
       })
-      navigate('/dashboard', { replace: true })
+
+      const redirectTo = localStorage.getItem(GOOGLE_REDIRECT_STORAGE_KEY) ?? '/dashboard'
+      localStorage.removeItem(GOOGLE_REDIRECT_STORAGE_KEY)
+      navigate(redirectTo, { replace: true })
     } catch (error) {
       console.error('Google sign-in callback failed', error)
       navigate('/login?error=google_auth_failed', { replace: true })

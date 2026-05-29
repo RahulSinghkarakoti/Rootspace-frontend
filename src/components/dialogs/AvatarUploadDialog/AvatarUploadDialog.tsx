@@ -2,6 +2,7 @@ import * as React from 'react'
 import { useMutation } from '@tanstack/react-query'
 import { useTranslation } from 'react-i18next'
 import { Button } from '@/components/ui/button'
+import { useToast } from '@/components/ui/toast'
 import {
   Dialog,
   DialogTrigger,
@@ -9,15 +10,17 @@ import {
   DialogHeader,
   DialogTitle,
   DialogDescription,
-  DialogClose,
+  DialogCloseButton,
 } from '@/components/ui/dialog'
 import { uploadApi } from '@/api/uploadApi'
 import { useTreeStore } from '@/store/treeStore'
-import { Camera, UploadCloud } from 'lucide-react'
+import { Camera, UploadCloud, X } from 'lucide-react'
+import { getErrorMessage } from '@/lib/errors'
 
 interface AvatarUploadDialogProps {
   personId: string
   children: React.ReactNode
+  sharedToken?: string
 }
 
 interface AvatarUploadResult {
@@ -27,8 +30,9 @@ interface AvatarUploadResult {
 const ACCEPTED_TYPES = ['image/jpeg', 'image/png', 'image/webp', 'image/gif']
 const MAX_FILE_SIZE = 5 * 1024 * 1024
 
-export default function AvatarUploadDialog({ personId, children }: AvatarUploadDialogProps) {
+export default function AvatarUploadDialog({ personId, children, sharedToken }: AvatarUploadDialogProps) {
   const { t } = useTranslation()
+  const toast = useToast()
   const [open, setOpen] = React.useState(false)
   const [file, setFile] = React.useState<File | null>(null)
   const [previewUrl, setPreviewUrl] = React.useState<string | null>(null)
@@ -69,7 +73,7 @@ export default function AvatarUploadDialog({ personId, children }: AvatarUploadD
     mutationFn: async () => {
       if (!file) throw new Error(t('dialogs.avatarUpload.noFile'))
 
-      const signatureResponse = await uploadApi.getAvatarUploadSignature()
+      const signatureResponse = await uploadApi.getAvatarUploadSignature(personId, 'avatar', sharedToken)
       const signatureData = signatureResponse.data.data
 
       const uploadForm = new FormData()
@@ -101,6 +105,7 @@ export default function AvatarUploadDialog({ personId, children }: AvatarUploadD
         personId,
         cloudinaryUrl,
         publicId,
+        shareToken: sharedToken,
       })
 
       return saveResponse.data.data
@@ -108,12 +113,18 @@ export default function AvatarUploadDialog({ personId, children }: AvatarUploadD
     onSuccess: (data) => {
       setOpen(false)
       setFile(null)
+      toast.success(
+        t('dialogs.avatarUpload.title'),
+        t('dialogs.avatarUpload.uploadSuccess', { defaultValue: 'Avatar uploaded successfully.' }),
+      )
       if (person) {
         upsertPerson({ ...person, avatarUrl: data.avatarUrl })
       }
     },
     onError: (error) => {
-      setError(error instanceof Error ? error.message : String(error))
+      const errorMessage = getErrorMessage(error, t('dialogs.avatarUpload.uploadError'))
+      setError(errorMessage)
+      toast.error(t('dialogs.avatarUpload.uploadError'), errorMessage)
     },
   })
 
@@ -127,12 +138,16 @@ export default function AvatarUploadDialog({ personId, children }: AvatarUploadD
     }
 
     if (!ACCEPTED_TYPES.includes(nextFile.type)) {
-      setError(t('dialogs.avatarUpload.invalidType'))
+      const message = t('dialogs.avatarUpload.invalidType')
+      setError(message)
+      toast.error(t('dialogs.avatarUpload.uploadError'), message)
       return
     }
 
     if (nextFile.size > MAX_FILE_SIZE) {
-      setError(t('dialogs.avatarUpload.fileTooLarge'))
+      const message = t('dialogs.avatarUpload.fileTooLarge')
+      setError(message)
+      toast.error(t('dialogs.avatarUpload.uploadError'), message)
       return
     }
 
@@ -160,7 +175,8 @@ export default function AvatarUploadDialog({ personId, children }: AvatarUploadD
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>{children}</DialogTrigger>
-      <DialogContent className="max-w-lg w-full p-0 overflow-hidden rounded-3xl">
+      <DialogContent className="max-w-lg w-full p-0 overflow-hidden rounded-lg">
+        <DialogCloseButton />
         <DialogHeader className="px-6 pt-6 pb-2">
           <DialogTitle>{t('dialogs.avatarUpload.title')}</DialogTitle>
           <DialogDescription>{t('dialogs.avatarUpload.description')}</DialogDescription>
@@ -168,71 +184,65 @@ export default function AvatarUploadDialog({ personId, children }: AvatarUploadD
 
         <div className="px-6 pb-6 space-y-4">
           <div
-            onDragOver={(event) => {
-              event.preventDefault()
-              setDragActive(true)
-            }}
+            onDragOver={(e) => { e.preventDefault(); setDragActive(true) }}
             onDragLeave={() => setDragActive(false)}
             onDrop={handleDrop}
-            className={`border rounded-3xl p-6 text-center transition-colors ${
-              dragActive ? 'border-primary bg-primary/10' : 'border-dashed border-border bg-slate-50/80'
-            }`}
+            className={`border rounded-xl p-4 text-center transition-colors ${dragActive ? 'border-primary bg-primary/10' : 'border-dashed border-border bg-muted/40'
+              }`}
           >
-            {previewUrl ? (
-              <div className="mx-auto mb-4 w-28 h-28 rounded-full overflow-hidden border border-border bg-white">
-                <img src={previewUrl} alt={t('dialogs.avatarUpload.previewAlt')} className="object-cover w-full h-full" />
-              </div>
-            ) : (
-              <div className="mx-auto mb-4 w-20 h-20 rounded-full bg-muted flex items-center justify-center text-foreground/70">
-                <UploadCloud className="w-9 h-9" />
-              </div>
-            )}
+            <div className="flex items-center gap-3">
+              {previewUrl ? (
+                <div className="w-14 h-14 shrink-0 rounded-full overflow-hidden border border-border bg-white">
+                  <img src={previewUrl} alt={t('dialogs.avatarUpload.previewAlt')} className="object-cover w-full h-full" />
+                </div>
+              ) : (
+                <div className="w-14 h-14 shrink-0 rounded-full bg-muted flex items-center justify-center text-muted-foreground">
+                  <UploadCloud className="w-6 h-6" />
+                </div>
+              )}
 
-            <p className="text-sm font-semibold text-foreground mb-2">
-              {file ? file.name : t('dialogs.avatarUpload.dragDropPrompt')}
-            </p>
-            <p className="text-xs text-muted-foreground mb-4">
-              {t('dialogs.avatarUpload.dragDropHint')}
-            </p>
-
-            <label className="inline-flex items-center justify-center rounded-full border border-input px-4 py-2 text-sm font-medium text-foreground shadow-sm cursor-pointer hover:bg-muted">
-              {t('dialogs.avatarUpload.browseButton')}
-              <input
-                type="file"
-                accept="image/*"
-                className="sr-only"
-                onChange={handleBrowse}
-              />
-            </label>
+              <div className="flex-1 text-left min-w-0">
+                <p className="text-xs font-medium text-foreground truncate">
+                  {file ? file.name : t('dialogs.avatarUpload.dragDropPrompt')}
+                </p>
+                <p className="text-xs text-muted-foreground mt-0.5">
+                  {t('dialogs.avatarUpload.dragDropHint')}
+                </p>
+                <label className="mt-2 inline-flex items-center rounded-full border border-input px-3 py-1 text-xs font-medium text-foreground cursor-pointer hover:bg-muted">
+                  {t('dialogs.avatarUpload.browseButton')}
+                  <input type="file" accept="image/*" className="sr-only" onChange={handleBrowse} />
+                </label>
+              </div>
+            </div>
           </div>
+
+
 
           {error && (
             <div className="rounded-xl border border-destructive bg-destructive/10 px-4 py-3 text-sm text-destructive">
               {error}
             </div>
           )}
+          {
+            file &&
+            (
 
-          <div className="flex items-center gap-3">
-            <Button
-              type="button"
-              variant="default"
-              size="sm"
-              onClick={() => mutation.mutate()}
-              disabled={!file || isUploading}
-              className="flex-1"
-            >
-              {isUploading ? t('dialogs.avatarUpload.uploading') : t('dialogs.avatarUpload.uploadAvatar')}
-            </Button>
-            <DialogClose asChild>
-              <Button type="button" variant="outline" size="sm" onClick={onClear}>
-                {t('dialogs.avatarUpload.cancel')}
-              </Button>
-            </DialogClose>
-          </div>
 
-          <div className="text-xs text-muted-foreground">
-            {t('dialogs.avatarUpload.uploadHelp')}
-          </div>
+              <div className="flex items-center gap-3">
+                <Button
+                  type="button"
+                  variant="default"
+                  size="sm"
+                  onClick={() => mutation.mutate()}
+                  disabled={!file || isUploading}
+                  className="flex-1"
+                >
+                  {isUploading ? t('dialogs.avatarUpload.uploading') : t('dialogs.avatarUpload.uploadAvatar')}
+                </Button>
+              </div>
+            )
+          }
+
         </div>
       </DialogContent>
     </Dialog>

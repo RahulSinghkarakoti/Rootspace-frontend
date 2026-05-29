@@ -4,7 +4,15 @@ import { useAuthStore } from '@/store/authStore'
 import { authApi } from '@/api/axios'
 import type { User, AuthTokens } from '@/types'
 
- 
+const GOOGLE_REDIRECT_STORAGE_KEY = 'rootspace-auth-redirect'
+
+const saveGoogleRedirect = (redirectTo: string) => {
+  try {
+    localStorage.setItem(GOOGLE_REDIRECT_STORAGE_KEY, redirectTo)
+  } catch {
+    // ignore storage failures
+  }
+}
 
 export function useAuth() {
   const { user, tokens, isAuthenticated, isLoading, login, logout, setLoading } =
@@ -15,11 +23,9 @@ export function useAuth() {
     async (email: string, password: string) => {
       setLoading(true)
       try {
-        // TODO: Replace mock with: const { data } = await authApi.login(email, password)
         const { data } = await authApi.login(email, password)
         const { user, tokens } = data.data
         login(user, tokens)
-        navigate('/dashboard')
       } catch (err) {
         console.error('Login failed', err)
         throw err
@@ -27,7 +33,7 @@ export function useAuth() {
         setLoading(false)
       }
     },
-    [login, navigate, setLoading]
+    [login, setLoading]
   )
 
   // Extract parseName outside useCallback (don't recreate on every call)
@@ -50,7 +56,6 @@ export function useAuth() {
         const { user, tokens } = data.data;
 
         login({ ...user, name }, tokens);
-        navigate('/dashboard');
       } catch (error) {
         console.error('Registration failed:', error);
         throw error;
@@ -58,7 +63,7 @@ export function useAuth() {
         setLoading(false);
       }
     },
-    [login, navigate, parseName, setLoading]
+    [login, parseName, setLoading]
   );
 
   const handleLogout = useCallback(async () => {
@@ -69,18 +74,19 @@ export function useAuth() {
     navigate('/login')
   }, [logout, navigate])
 
-  const getProfile=useCallback(async ()=>{
-   try {
-    const {data}=await authApi.me()
-    console.log(data)
-    return data
-   } catch (error) {
-    console.error('Profile error:',error)
-    throw error
-   }
-  },[navigate])
+  const getProfile = useCallback(async () => {
+    try {
+      const { data } = await authApi.me()
+      console.log(data)
+      return data
+    } catch (error) {
+      console.error('Profile error:', error)
+      throw error
+    }
+  }, [navigate])
 
-  const handleGoogleAuth = useCallback(() => {
+  const handleGoogleAuth = useCallback((redirectTo = '/dashboard') => {
+    saveGoogleRedirect(redirectTo)
     window.location.assign(authApi.googleAuthUrl)
   }, [])
 
@@ -93,6 +99,6 @@ export function useAuth() {
     register: handleRegister,
     signInWithGoogle: handleGoogleAuth,
     logout: handleLogout,
-    getProfile
+    getProfile,
   }
 }

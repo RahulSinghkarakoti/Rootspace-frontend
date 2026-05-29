@@ -1,6 +1,6 @@
 import { create } from 'zustand'
 import { treesApi } from '@/api/treesApi'
-import type { EducationItem, MediaItem, PersonDetail, RelationItem } from '@/types/familyTree'
+import type { EducationItem, MediaItem, PersonDetail, RelationItem, CollaboationItem } from '@/types/familyTree'
 import type { CreateTreePayload, TreeSummary } from '@/types'
 import { personApi } from '@/api/personApi'
 
@@ -20,6 +20,10 @@ export interface TreeStoreState {
   isLoading: boolean
   error: string | null
 
+  gettinCollaborations: boolean
+  setGettingCollaborations: (loading: boolean) => void
+  collaborations: CollaboationItem[]
+loadCollaborations: () => Promise<void>
   setTreeLoaded: (loaded: boolean) => void
   setTrees: (trees: TreeSummary[]) => void
   createTree: (payload: CreateTreePayload) => Promise<TreeSummary>
@@ -56,6 +60,9 @@ export const useTreeStore = create<TreeStoreState>((set, get) => ({
   cacheDurationMs: 60 * 1000,
   isLoading: false,
   error: null,
+  gettinCollaborations: false,
+  setGettingCollaborations: (loading) => set({ gettinCollaborations: loading }),
+  collaborations: [],
 
   setTrees: (trees) => set({ trees }),
   setTreeLoaded: () => set({ treesLoaded: true }),
@@ -225,9 +232,9 @@ export const useTreeStore = create<TreeStoreState>((set, get) => ({
       }))
     } catch (error) {
       console.error(error)
-      set({
-        error: error instanceof Error ? error.message : 'Unable to delete person',
-      })
+      const errorMessage = error instanceof Error ? error.message : 'Unable to delete person'
+      set({ error: errorMessage })
+      throw new Error(errorMessage)
     } finally {
       // set({ isLoading: false })
     }
@@ -266,6 +273,19 @@ export const useTreeStore = create<TreeStoreState>((set, get) => ({
       })
     } finally {
       set({ isLoading: false })
+    }
+  },
+  loadCollaborations: async () => {
+    set({ gettinCollaborations: true, error: null })
+    try {
+      const response = await treesApi.getCollaborations()
+      set({ collaborations: response.data.data })
+    } catch (error) {
+      set({
+        error: error instanceof Error ? error.message : 'Unable to load collaborations',
+      })
+    } finally {
+      set({ gettinCollaborations: false })
     }
   },
 }))

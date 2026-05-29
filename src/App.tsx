@@ -3,6 +3,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { ThemeProvider } from '@/components/layout/ThemeProvider'
 import { DashboardLayout } from '@/components/layout/DashboardLayout'
 import { ProtectedRoute, PublicOnlyRoute } from '@/components/auth/ProtectedRoute'
+import { ToastProvider } from '@/components/ui/toast'
 
 // Pages
 import LandingPage from '@/pages/LandingPage'
@@ -32,51 +33,63 @@ export default function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <ThemeProvider>
-        <BrowserRouter>
-          <Routes>
-            {/* Public routes */}
-            <Route path="/" element={<LandingPage />} />
+        <ToastProvider>
+          <BrowserRouter>
+            <Routes>
+              {/* Public routes */}
+              <Route path="/" element={<LandingPage />} />
 
-            <Route
-              path="/login"
-              element={
-                <PublicOnlyRoute>
-                  <LoginPage />
-                </PublicOnlyRoute>
-              }
-            />
-            <Route
-              path="/register"
-              element={
-                <PublicOnlyRoute>
-                  <RegisterPage />
-                </PublicOnlyRoute>
-              }
-            />
-            <Route path="/auth/google/callback" element={<GoogleCallbackPage />} />
+              <Route
+                path="/login"
+                element={
+                  <PublicOnlyRoute>
+                    <LoginPage />
+                  </PublicOnlyRoute>
+                }
+              />
+              <Route
+                path="/register"
+                element={
+                  <PublicOnlyRoute>
+                    <RegisterPage />
+                  </PublicOnlyRoute>
+                }
+              />
+              <Route path="/auth/google/callback" element={<GoogleCallbackPage />} />
 
-            {/* Protected dashboard routes */}
-            <Route
-              path="/dashboard"
-              element={
-                <ProtectedRoute>
-                  <DashboardLayout />
-                </ProtectedRoute>
-              }
-            >
-              <Route index element={<DashboardPage />} />
-              <Route path="trees" element={<TreesPage />} />
-              <Route path="editor" element={<TreeEditorPage />} />
-              <Route path="search" element={<AncestralSearchPage />} />
-              <Route path="shared" element={<SharedTreesPage />} />
-              <Route path="collaborators" element={<CollaboratorsPage />} />
-              <Route path="settings" element={<SettingsPage />} />
-            </Route>
+              <Route
+                path="/shared"
+                element={
+                  <ProtectedRoute>
+                    <SharedTreesPage />
+                  </ProtectedRoute>
+                }
+              />
 
-            {/* Fallback */}
-            <Route path="*" element={<Navigate to="/" replace />} />
-          </Routes>
-        </BrowserRouter>
+              {/* Protected dashboard routes */}
+              <Route
+                path="/dashboard"
+                element={
+                  <ProtectedRoute>
+                    <DashboardLayout />
+                  </ProtectedRoute>
+                }
+              >
+
+                
+                <Route index element={<DashboardPage />} />
+                <Route path="trees" element={<TreesPage />} />
+                <Route path="editor" element={<TreeEditorPage />} />
+                <Route path="search" element={<AncestralSearchPage />} /> 
+                <Route path="collaborators" element={<CollaboratorsPage />} />
+                <Route path="settings" element={<SettingsPage />} />
+              </Route>
+
+              {/* Fallback */}
+              <Route path="*" element={<Navigate to="/" replace />} />
+            </Routes>
+          </BrowserRouter>
+        </ToastProvider>
       </ThemeProvider>
     </QueryClientProvider>
   )

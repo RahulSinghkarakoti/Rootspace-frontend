@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { TreePine, Mail, Lock, User, Eye, EyeOff, ArrowRight, Loader2, Sun, Moon } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -15,6 +15,10 @@ export default function RegisterPage() {
   const [error, setError] = useState('')
   const { register, signInWithGoogle, isLoading } = useAuth()
   const { toggleTheme, theme } = useAppStore()
+  const navigate = useNavigate()
+  const location = useLocation()
+  const from = (location.state as { from?: { pathname: string; search?: string } })?.from
+  const redirectTo = from ? `${from.pathname}${from.search ?? ''}` : '/dashboard'
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -25,6 +29,7 @@ export default function RegisterPage() {
     }
     try {
       await register(name, email, password)
+      navigate(redirectTo, { replace: true })
     } catch {
       setError('Registration failed. Please try again.')
     }
@@ -62,7 +67,7 @@ export default function RegisterPage() {
               type="button"
               variant="outline"
               className="w-full gap-2"
-              onClick={signInWithGoogle}
+              onClick={() => signInWithGoogle(redirectTo)}
               disabled={isLoading}
             >
               <span className="flex h-5 w-5 items-center justify-center rounded-full bg-white text-sm font-bold text-blue-600">
@@ -165,7 +170,7 @@ export default function RegisterPage() {
 
           <p className="mt-6 text-center text-sm text-muted-foreground">
             Already have an account?{' '}
-            <Link to="/login" className="text-amber-500 font-medium hover:underline">
+            <Link to="/login" state={location.state} className="text-amber-500 font-medium hover:underline">
               Sign in
             </Link>
           </p>

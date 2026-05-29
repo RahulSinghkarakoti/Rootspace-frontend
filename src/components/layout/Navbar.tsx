@@ -21,6 +21,7 @@ import * as DropdownMenu from "@radix-ui/react-dropdown-menu";
 import { useTranslation } from "react-i18next";
 import { changeLanguage } from "@/i18n";
 import { useTreeStore } from "@/store/treeStore";
+import { treesApi } from "@/api/treesApi";
 
 export function Navbar() {
   const { t, i18n } = useTranslation();
@@ -197,7 +198,7 @@ export function Navbar() {
               </DropdownMenu.Item>
               <DropdownMenu.Item
                 className="flex cursor-pointer items-center gap-2 rounded-md px-2.5 py-1.5 text-xs text-destructive outline-none transition-colors hover:bg-destructive/10 focus:bg-destructive/10"
-                onSelect={() => loadCurrentTree(4)}
+                onSelect={() => treesApi.getCollaborations()}
               >helper
               </DropdownMenu.Item>
             </DropdownMenu.Content>
