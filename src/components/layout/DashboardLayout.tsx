@@ -20,7 +20,7 @@ export function DashboardLayout() {
           sidebarCollapsed && 'lg:pl-[68px]'
         )}
       >
-        <div className="container-fluid p-4 max-w-[1600px] mx-auto animate-fade-in">
+        <div className="container-fluid max-w-[1600px] mx-auto animate-fade-in">
           <Outlet />
         </div>
       </main>

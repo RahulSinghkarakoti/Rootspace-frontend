@@ -28,22 +28,29 @@ export default function TreesPage() {
 
   if (isLoading) {
     return (
+        <div className="space-y-8 p-4">
+
       <div className="rounded-xl border border-border p-8 text-center text-sm text-muted-foreground">
         Loading your trees...
+      </div>
       </div>
     );
   }
 
   if (error) {
     return (
+        <div className="space-y-8 p-4">
+
       <div className="rounded-xl border border-red-200 bg-red-50 p-8 text-center text-sm text-foreground">
         Unable to load trees: {typeof error === 'string' ? error : 'An unexpected error occurred.'}
+      </div>
       </div>
     );
   }
 
   return (
-    <div className="space-y-4">
+        <div className="space-y-8 p-4">
+
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-xl font-bold">My Trees

@@ -67,15 +67,46 @@ export interface CreatePersonData {
   }[]
 }
 
+export type SharePermission =
+  | 'VIEW_ONLY'
+  | 'MEDIA_ONLY'
+  | 'ADD_PERSON'
+  | 'CONTRIBUTOR'
+  | 'EDITOR'
+  | 'FULL_ACCESS'
+
+export interface TreeShareMember {
+  id: string
+  tokenId: string
+  userId: string
+  addedPersonsCount: number
+  joinedAt: string
+  updatedAt: string
+}
+
 export interface treeLink {
   id: string
   treeId: number
-  permission: string
+  permission: SharePermission | string
   link: string
   token: string
+  isActive?: boolean
   expiresAt?: string | null
   personLimit?: number | null
   createdAt?: string | null
+  updatedAt?: string | null
+}
+
+export type ShareLinkUpdatePayload = Partial<{
+  permission: SharePermission | string
+  expiresAt: string | null
+  personLimit: number | null
+  isActive: boolean
+}>
+
+export interface SharedTreeListItem extends treeLink {
+  tree: Pick<TreeSummary, 'id' | 'name' | 'slug'>
+  members?: TreeShareMember[]
 }
 
 export interface SharedTreeAccess {
@@ -103,18 +134,18 @@ export interface SharedTreeData extends SharedTreeAccess {
 
 
 
-export interface CollaboationItem {
+export interface CollaboationItem extends Omit<SharedTreeListItem, 'treeId' | 'members'> {
   id: string
   token: string
-  permission: 'VIEWER' | 'EDITOR'
+  permission: SharePermission | 'VIEWER' | 'EDITOR' | string
   personLimit: number
+  isActive?: boolean
   expiresAt: string | null
-  tree: {
-    id: number
-    name: string
-    slug: string
-  }
-  link: string
+  tree: Pick<TreeSummary, 'id' | 'name' | 'slug'>
+  link: string,
+  createdAt?: string,
+  updatedAt?: string,
 }
 
+export interface SharedTreeItem extends SharedTreeListItem {}
 

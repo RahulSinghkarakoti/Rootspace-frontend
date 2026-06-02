@@ -19,25 +19,30 @@ export default function CollaboratorsPage() {
 
   if (isLoading) {
     return (
+        <div className="space-y-8 p-4">
+
       <div className="rounded-xl border border-border p-8 text-center text-sm text-muted-foreground">
         Loading collaborators...
-      </div>
+      </div></div>
     )
   }
 
   if (error) {
     return (
+        <div className="space-y-8 p-4">
+
       <div className="rounded-xl border border-red-200 bg-red-50 p-8 text-center text-sm text-foreground">
         Unable to load collaborators: {typeof error === 'string' ? error : 'An unexpected error occurred.'}
-      </div>
+      </div></div>
     )
   }
 
   return (
-    <div className="space-y-6">
+        <div className="space-y-8 p-4">
+
       <div>
-        <h1 className="font-display text-2xl font-bold">Collaborators</h1>
-        <p className="text-sm text-muted-foreground">Manage people who can view or edit your trees</p>
+        <h1 className="font-display text-2xl font-bold">Collaborations</h1>
+        <p className="text-sm text-muted-foreground">Manage trees shared with you</p>
       </div>
 
       {collaborations?.length ? (

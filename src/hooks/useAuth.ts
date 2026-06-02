@@ -1,7 +1,7 @@
 import { useCallback } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuthStore } from '@/store/authStore'
-import { authApi } from '@/api/axios'
+import { authApi } from '@/api/authApi'
 import type { User, AuthTokens } from '@/types'
 
 const GOOGLE_REDIRECT_STORAGE_KEY = 'rootspace-auth-redirect'
@@ -15,7 +15,7 @@ const saveGoogleRedirect = (redirectTo: string) => {
 }
 
 export function useAuth() {
-  const { user, tokens, isAuthenticated, isLoading, login, logout, setLoading } =
+  const { user, tokens, isAuthenticated, isLoading, login, logout, setLoading ,setSessionInfo} =
     useAuthStore()
   const navigate = useNavigate()
 
@@ -85,6 +85,17 @@ export function useAuth() {
     }
   }, [navigate])
 
+  const getSessionInfo = useCallback(async () => {
+    try {
+      const { data } = await authApi.sessionInfo() 
+      setSessionInfo(data.data)
+      return data
+    } catch (error) {
+      console.error('Session info error:', error)
+      throw error
+    }
+  }, [navigate])
+
   const handleGoogleAuth = useCallback((redirectTo = '/dashboard') => {
     saveGoogleRedirect(redirectTo)
     window.location.assign(authApi.googleAuthUrl)
@@ -100,5 +111,6 @@ export function useAuth() {
     signInWithGoogle: handleGoogleAuth,
     logout: handleLogout,
     getProfile,
+    getSessionInfo,
   }
 }

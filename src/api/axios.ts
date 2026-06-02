@@ -2,7 +2,6 @@ import axios, { type AxiosError, type InternalAxiosRequestConfig } from 'axios'
 import { useAuthStore } from '@/store/authStore'
 
 const BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001/api'
-const GOOGLE_AUTH_URL = `${BASE_URL}/auth/google`
 
 export const api = axios.create({
   baseURL: BASE_URL,
@@ -87,21 +86,3 @@ api.interceptors.response.use(
     return Promise.reject(error)
   }
 )
-
-// ─── Auth API helpers ────────────────────────────────────────────────────────
-export const authApi = {
-  login: (email: string, password: string) =>
-    api.post('/auth/login', { email, password }),
-
-  register: (firstName:string, lastName: string, email: string, password: string) =>
-    api.post('/auth/register', { firstName, lastName, email, password }),
-
-  refresh: (refreshToken: string) =>
-    api.post('/auth/refresh', { refreshToken }),
-
-  logout: () => api.post('/auth/logout'),
-
-  me: () => api.get('/auth/me'),
-
-  googleAuthUrl: GOOGLE_AUTH_URL,
-}

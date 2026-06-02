@@ -5,6 +5,7 @@ import type { User, AuthTokens } from '@/types'
 interface AuthStore {
   user: User | null
   tokens: AuthTokens | null
+  sessionInfo?: any
   isAuthenticated: boolean
   isLoading: boolean
 
@@ -16,6 +17,7 @@ interface AuthStore {
   setLoading: (loading: boolean) => void
   updateAccessToken: (accessToken: string, expiresAt: number) => void
   isTokenExpired: () => boolean
+  setSessionInfo: (sessionInfo: any) => void
 }
 
 export const useAuthStore = create<AuthStore>()(
@@ -25,7 +27,7 @@ export const useAuthStore = create<AuthStore>()(
       tokens: null,
       isAuthenticated: false,
       isLoading: false,
-
+      sessionInfo: [],
       setUser: (user) => set({ user }),
 
       setTokens: (tokens) => set({ tokens }),
@@ -61,6 +63,7 @@ export const useAuthStore = create<AuthStore>()(
         // Expire 30 seconds before actual expiry for safety
         return Date.now() >= tokens.expiresAt - 30_000
       },
+      setSessionInfo: (sessionInfo) => set({ sessionInfo }),
     }),
     {
       name: 'rootspace-auth',

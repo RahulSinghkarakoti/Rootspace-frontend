@@ -4,7 +4,8 @@ import { Card, CardContent } from '@/components/ui/card'
 
 export default function AncestralSearchPage() {
   return (
-    <div className="space-y-6">
+           <div className="space-y-8 p-4">
+
       <div>
         <h1 className="font-display text-2xl font-bold">Ancestral Search</h1>
         <p className="text-sm text-muted-foreground">Discover records and relatives from historical databases</p>

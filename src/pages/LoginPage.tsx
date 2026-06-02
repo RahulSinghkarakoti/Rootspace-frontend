@@ -7,10 +7,9 @@ import { Label } from '@/components/ui/label'
 import { useAuth } from '@/hooks/useAuth'
 import { useAppStore } from '@/store/appStore'
 import { Sun, Moon } from 'lucide-react'
-
-export default function LoginPage() {
-  const [email, setEmail] = useState('demo@rootspace.app')
-  const [password, setPassword] = useState('4!Ed98j9w5Laq@e')
+import ForgotPassswordDialog from '@/components/dialogs/ForgetPasswordDialog/ForgotPassswordDialog'
+import { useForm } from 'react-hook-form'
+export default function LoginPage() { 
   const [showPassword, setShowPassword] = useState(false)
   const [error, setError] = useState('')
   const { login, signInWithGoogle, isLoading } = useAuth()
@@ -19,12 +18,19 @@ export default function LoginPage() {
   const location = useLocation()
   const from = (location.state as { from?: { pathname: string; search?: string } })?.from
   const redirectTo = from ? `${from.pathname}${from.search ?? ''}` : '/dashboard'
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
+  const {
+    register,
+    handleSubmit,
+    formState: { errors, isValid },
+    reset,
+  } = useForm<{ email: string; password: string }>({
+    defaultValues: { email: 'demo@rootspace.app', password: '4!Ed98j9w5Laq@e' }, mode: "onChange",
+  })
+  const onLogin = async (data: { email: string; password: string }) => {
     setError('')
     try {
-      await login(email, password)
+
+      await login(data.email, data.password)
       navigate(redirectTo, { replace: true })
     } catch {
       setError('Invalid email or password. Please try again.')
@@ -62,7 +68,7 @@ export default function LoginPage() {
               </p>
             </div>
 
-            <form onSubmit={handleSubmit} className="space-y-5">
+            <form onSubmit={handleSubmit(onLogin)} className="space-y-5">
               <Button
                 type="button"
                 variant="outline"
@@ -89,9 +95,8 @@ export default function LoginPage() {
                   <Input
                     id="email"
                     type="email"
+                    {...register('email', { required: 'Email is required' })}
                     placeholder="you@example.com"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
                     className="pl-10"
                     required
                     autoComplete="email"
@@ -102,9 +107,12 @@ export default function LoginPage() {
               <div className="space-y-1.5">
                 <div className="flex items-center justify-between">
                   <Label htmlFor="password">Password</Label>
-                  <a href="#" className="text-xs text-amber-500 hover:underline">
-                    Forgot password?
-                  </a>
+                  <ForgotPassswordDialog>
+
+                    <a href="#" className="text-xs text-amber-500 hover:underline">
+                      Forgot password?
+                    </a>
+                  </ForgotPassswordDialog>
                 </div>
                 <div className="relative">
                   <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
@@ -112,8 +120,7 @@ export default function LoginPage() {
                     id="password"
                     type={showPassword ? 'text' : 'password'}
                     placeholder="••••••••"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
+                    {...register('password', { required: 'Password is required' })}
                     className="pl-10 pr-10"
                     required
                     autoComplete="current-password"
@@ -160,12 +167,6 @@ export default function LoginPage() {
                 Create one free
               </Link>
             </p>
-
-            <div className="mt-8 rounded-xl bg-amber-500/10 border border-amber-500/20 p-3">
-              <p className="text-xs text-amber-600 dark:text-amber-400 font-medium mb-1">Demo credentials</p>
-              <p className="text-xs text-muted-foreground">Email: demo@rootspace.app</p>
-              <p className="text-xs text-muted-foreground">Password: 4!Ed98j9w5Laq@e</p>
-            </div>
           </div>
         </div>
       </div>

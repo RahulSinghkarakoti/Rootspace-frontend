@@ -1,6 +1,6 @@
 import { create } from 'zustand'
 import { treesApi } from '@/api/treesApi'
-import type { EducationItem, MediaItem, PersonDetail, RelationItem, CollaboationItem } from '@/types/familyTree'
+import type { EducationItem, MediaItem, PersonDetail,SharedTreeItem, RelationItem, CollaboationItem } from '@/types/familyTree'
 import type { CreateTreePayload, TreeSummary } from '@/types'
 import { personApi } from '@/api/personApi'
 
@@ -21,9 +21,13 @@ export interface TreeStoreState {
   error: string | null
 
   gettinCollaborations: boolean
+  gettingSharedTrees: boolean
   setGettingCollaborations: (loading: boolean) => void
   collaborations: CollaboationItem[]
 loadCollaborations: () => Promise<void>
+sharedTrees: SharedTreeItem[]
+loadSharedTrees: () => Promise<void>
+setSharedTreeActive: (token: string, isActive: boolean) => void
   setTreeLoaded: (loaded: boolean) => void
   setTrees: (trees: TreeSummary[]) => void
   createTree: (payload: CreateTreePayload) => Promise<TreeSummary>
@@ -61,9 +65,10 @@ export const useTreeStore = create<TreeStoreState>((set, get) => ({
   isLoading: false,
   error: null,
   gettinCollaborations: false,
+  gettingSharedTrees: false,
   setGettingCollaborations: (loading) => set({ gettinCollaborations: loading }),
   collaborations: [],
-
+sharedTrees: [],
   setTrees: (trees) => set({ trees }),
   setTreeLoaded: () => set({ treesLoaded: true }),
   setCurrentTreeId: (treeId) => set({ currentTreeId: treeId }),
@@ -115,6 +120,12 @@ export const useTreeStore = create<TreeStoreState>((set, get) => ({
     }),
   setTreeMedia: (treeMedia) => set({ treeMedia }),
   setError: (error) => set({ error }),
+  setSharedTreeActive: (token, isActive) =>
+    set((state) => ({
+      sharedTrees: state.sharedTrees.map((share) =>
+        share.token === token ? { ...share, isActive } : share
+      ),
+    })),
 
 
   loadAllTrees: async () => {
@@ -288,4 +299,15 @@ export const useTreeStore = create<TreeStoreState>((set, get) => ({
       set({ gettinCollaborations: false })
     }
   },
+  loadSharedTrees: async () => {
+    set({ gettingSharedTrees: true, error: null })
+    try {
+      const response = await treesApi.getAllSharedTree()
+      set({ sharedTrees: response.data.data })
+    } catch (error) {
+      set({
+        error: error instanceof Error ? error.message : 'Unable to load shared trees',
+      })
+    } finally {      set({ gettingSharedTrees: false })
+    } },
 }))

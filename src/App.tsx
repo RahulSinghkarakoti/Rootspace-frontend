@@ -18,7 +18,15 @@ import {
   SharedTreesPage,
   CollaboratorsPage,
   SettingsPage,
+  SettingsProfilePage,
+  SettingsAppsSessionsPage,
+  SettingsPrivacySafetyPage,
+  SettingsPremiumPage,
+  SettingsThemePage,
 } from '@/pages/dashboard'
+import SettingsLayout from './components/layout/SettingsLayout'
+import ResetPasswordPage from './pages/ResetPasswordPage'
+import SharedTreeAccessPage from './pages/dashboard/SharedTreeAccessPage'
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -57,6 +65,8 @@ export default function App() {
               />
               <Route path="/auth/google/callback" element={<GoogleCallbackPage />} />
 
+              <Route path="/reset-password" element={<ResetPasswordPage />} />
+
               <Route
                 path="/shared"
                 element={
@@ -76,13 +86,22 @@ export default function App() {
                 }
               >
 
-                
+
                 <Route index element={<DashboardPage />} />
                 <Route path="trees" element={<TreesPage />} />
                 <Route path="editor" element={<TreeEditorPage />} />
-                <Route path="search" element={<AncestralSearchPage />} /> 
+                <Route path="search" element={<AncestralSearchPage />} />
                 <Route path="collaborators" element={<CollaboratorsPage />} />
-                <Route path="settings" element={<SettingsPage />} />
+                <Route path="shared" element={<SharedTreeAccessPage />} />
+
+                <Route path="settings" element={<SettingsLayout />}>
+                  <Route index element={<SettingsPage />} />
+                  <Route path="profile" element={<SettingsProfilePage />} />
+                  <Route path="apps-and-sessions" element={<SettingsAppsSessionsPage />} />
+                  <Route path="privacy-and-safety" element={<SettingsPrivacySafetyPage />} />
+                  <Route path="premium" element={<SettingsPremiumPage />} />
+                  <Route path="theme" element={<SettingsThemePage />} />
+                </Route>
               </Route>
 
               {/* Fallback */}

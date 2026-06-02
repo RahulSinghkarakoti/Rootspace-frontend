@@ -38,7 +38,7 @@ export default function DashboardPage() {
       : t('dashboard.goodEvening')
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-8 p-4">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <p className="text-sm text-muted-foreground">{greeting} 👋</p>

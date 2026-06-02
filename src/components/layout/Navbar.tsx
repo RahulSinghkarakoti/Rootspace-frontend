@@ -26,7 +26,7 @@ import { treesApi } from "@/api/treesApi";
 export function Navbar() {
   const { t, i18n } = useTranslation();
   const { toggleTheme, theme, toggleSidebar, sidebarCollapsed } = useAppStore();
-  const { user, logout, getProfile } = useAuth();
+  const { user, logout, getProfile,getSessionInfo } = useAuth();
   const loadCurrentTree = useTreeStore(s => s.loadCurrentTree)
 
   const initials =
@@ -56,7 +56,7 @@ export function Navbar() {
       </Button>
 
       {/* Search bar */}
-      <div className="flex flex-1 items-center gap-2 max-w-sm">
+      {/* <div className="flex flex-1 items-center gap-2 max-w-sm">
         <div className="relative flex-1">
           <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
           <input
@@ -65,7 +65,7 @@ export function Navbar() {
             className="h-8 w-full rounded-md border border-input bg-background pl-8 pr-3 text-xs placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
           />
         </div>
-      </div>
+      </div> */}
 
       <div className="ml-auto flex items-center gap-1">
         {/* Theme toggle */}
@@ -198,8 +198,9 @@ export function Navbar() {
               </DropdownMenu.Item>
               <DropdownMenu.Item
                 className="flex cursor-pointer items-center gap-2 rounded-md px-2.5 py-1.5 text-xs text-destructive outline-none transition-colors hover:bg-destructive/10 focus:bg-destructive/10"
-                onSelect={() => treesApi.getCollaborations()}
-              >helper
+                onSelect={() => getSessionInfo()}
+              >
+                getSessionInfo
               </DropdownMenu.Item>
             </DropdownMenu.Content>
           </DropdownMenu.Portal>

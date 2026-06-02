@@ -1,7 +1,7 @@
 // src/api/treesApi.ts
 import { api } from './axios'
 import type { ApiResponse, CreateTreePayload, TreeSummary } from '@/types'
-import type { CollaboationItem, CreatePersonData, EducationItem, MediaItem, PersonDetail, RelationItem, SharedTreeAccess, SharedTreeData, treeLink } from '@/types/familyTree'
+import type { CollaboationItem, CreatePersonData, EducationItem, MediaItem, PersonDetail, RelationItem, SharedTreeAccess, SharedTreeData, SharedTreeItem, ShareLinkUpdatePayload, treeLink } from '@/types/familyTree'
 
 export const treesApi = {
   getAll: () => api.get<ApiResponse<TreeSummary[]>>('/trees'),
@@ -20,11 +20,12 @@ export const treesApi = {
 
 
   genrateShareLink: (id: number, payload: { permission: string; expiresAt: string; personLimit?: number | null }) => api.post<ApiResponse<treeLink>>(`/trees/${id}/share`, payload),
-  updateShareLink: (treeId: number, linkToken: string, payload: { permission: string; expiresAt: string; personLimit?: number | null }) => api.patch<ApiResponse<treeLink>>(`/trees/${treeId}/share/${linkToken}`, payload),
+  updateShareLink: (treeId: number, linkToken: string, payload: ShareLinkUpdatePayload) => api.patch<ApiResponse<treeLink>>(`/trees/${treeId}/share/${linkToken}`, payload),
   deleteShareLink: (linkToken: string, treeId: number) => api.delete(`/trees/${treeId}/share/${linkToken}`),
 
   verifySharedTree: (token: string) => api.get<ApiResponse<SharedTreeAccess>>(`/shared-trees/${token}/verify`),
   getSharedTree: (token: string) => api.get<ApiResponse<SharedTreeData>>(`/shared-trees/${token}`),
+  getAllSharedTree: () => api.get<ApiResponse<SharedTreeItem[]>>('/shared-trees'),
   createSharedPerson: (token: string, personData: CreatePersonData) =>
     api.post<ApiResponse<{ newPerson: PersonDetail; createdRelations: RelationItem[]; unknownSpouse?: PersonDetail | null }>>(
       `/shared-trees/${token}/person`,
