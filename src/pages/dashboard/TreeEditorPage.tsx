@@ -85,6 +85,7 @@ function TreeEditorInner({ sidebarOffset, treeId }: { sidebarOffset: number; tre
   const [selectedId, setSelectedId] = useState<string | null>(null)
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const [showMinMap, setShowMinMap] = useState(false)
+  const [isMobile, setIsMobile] = useState<boolean>(() => typeof window !== 'undefined' ? window.innerWidth <= 767 : false)
   const people = useTreeStore(s => s.people)
   const relations = useTreeStore(s => s.relations)
   const isLoading = useTreeStore(s => s.isLoading)
@@ -100,6 +101,18 @@ function TreeEditorInner({ sidebarOffset, treeId }: { sidebarOffset: number; tre
   useEffect(() => {
     loadCurrentTree(treeId)
   }, [treeId])
+
+  useEffect(() => {
+    const mq = window.matchMedia('(max-width: 767px)')
+    const handle = (e: MediaQueryListEvent | MediaQueryList) => setIsMobile('matches' in e ? e.matches : mq.matches)
+    setIsMobile(mq.matches)
+    if (mq.addEventListener) mq.addEventListener('change', handle as any)
+    else mq.addListener(handle as any)
+    return () => {
+      if (mq.removeEventListener) mq.removeEventListener('change', handle as any)
+      else mq.removeListener(handle as any)
+    }
+  }, [])
 
   const handleNodeClick = useCallback(
     (id: string, showInfo: boolean = false) => {
@@ -206,16 +219,18 @@ function TreeEditorInner({ sidebarOffset, treeId }: { sidebarOffset: number; tre
   }
 
   const sidebarWidth = sidebarOpen ? 340 : 0
+  const effectiveLeft = isMobile ? 0 : sidebarOffset
+  const effectiveRight = isMobile ? 0 : sidebarWidth
 
   return (
     <div
       className="fixed inset-x-0 top-[56px] bottom-0 z-10 bg-background overflow-hidden"
-      style={{ left: sidebarOffset }}
+      style={{ left: effectiveLeft }}
     >
       {/* Canvas */}
       <div
         className="absolute inset-0 transition-all duration-300"
-        style={{ right: sidebarWidth }}
+        style={{ right: effectiveRight }}
       >
         <ReactFlow
           nodes={nodes}
@@ -294,7 +309,7 @@ export default function TreeEditorPage() {
   const treeId = Number.isInteger(treeParam) && treeParam > 0 ? treeParam : 1
   const { sidebarCollapsed } = useAppStore()
   const sidebarOffset = sidebarCollapsed ? 68 : 260
-
+  
   return (
     <ReactFlowProvider>
       <TreeEditorInner sidebarOffset={sidebarOffset} treeId={treeId} />
