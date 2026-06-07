@@ -33,7 +33,7 @@ export function Sidebar() {
     {
       group: t('sidebar.discover'),
       items: [
-        { label: t('sidebar.ancestralSearch'), icon: Search, href: '/dashboard/search', badge: 'New' },
+        // { label: t('sidebar.ancestralSearch'), icon: Search, href: '/dashboard/search', badge: 'New' },
         { label: t('sidebar.sharedTrees'), icon: Share2, href: '/dashboard/shared' },
         { label: t('sidebar.collaborators'), icon: Users, href: '/dashboard/collaborators' },
       ],
@@ -118,11 +118,11 @@ export function Sidebar() {
                         {!sidebarCollapsed && (
                           <>
                             <span className="flex-1">{item.label}</span>
-                            {item.badge && (
+                            {/* {item?.badge && (
                               <Badge variant="gold" className="text-[7px] px-1 py-0">
-                                {item.badge}
+                                {item?.badge}
                               </Badge>
-                            )}
+                            )} */}
                           </>
                         )}
                       </>

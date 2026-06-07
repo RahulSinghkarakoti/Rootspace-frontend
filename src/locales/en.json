@@ -10,7 +10,22 @@
     "recentActivity": "Recent Activity",
     "upgradeToPro": "Upgrade to Pro",
     "upgradeDescription": "Unlimited trees, DNA record matching, priority ancestral search, and advanced sharing controls.",
-    "upgradeButton": "Upgrade — $9/mo"
+    "upgradeButton": "Upgrade — $9/mo",
+    "dashboard": "Dashboard",
+    "familyTrees": "Family Trees",
+    "membersAdded": "Members",
+    "sharedTrees": "Shared Trees",
+    "recordsFound": "Records",
+    "members": "members",
+    "sharedBadge": "Shared",
+    "activity": {
+      "CREATE_PERSON": "Added",
+      "CREATE_TREE": "Created",
+      "SHARE_TREE": "Shared",
+      "UPLOAD_MEDIA": "Uploaded",
+      "FOUND_RECORDS": "Found",
+      "UPDATE_PERSON": "Updated"
+    }
   },
   "sidebar": {
     "main": "Main",

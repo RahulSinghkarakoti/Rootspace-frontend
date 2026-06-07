@@ -158,10 +158,10 @@ export default function EducationForm({
           </Button>
         )}
       </DialogTrigger>
-      <DialogContent className="w-[min(100vw-1.5rem,720px)] max-w-[720px] p-0 rounded-3xl bg-card/95 border border-white/10 flex flex-col max-h-[90vh]">
+      <DialogContent className="flex w-[calc(100vw-0.75rem)] max-w-[720px] flex-col overflow-hidden rounded-lg border border-border bg-card p-0 max-h-[calc(100dvh-0.75rem)] sm:w-[min(100vw-1.5rem,720px)] sm:max-h-[90vh]">
 
         {/* Sticky Header */}
-        <DialogHeader className="flex flex-row items-center justify-between shrink-0 px-4 pt-4 pb-3 border-b border-border bg-card/95">
+        <DialogHeader className="flex shrink-0 flex-row items-center justify-between border-b border-border bg-card px-3 pb-2 pt-3">
           <div>
             <DialogTitle className="text-sm font-semibold text-foreground">
               {editMode ? t('education.editEducation') || 'Edit education' : t('education.addEducation') || 'Add Education'}
@@ -180,11 +180,11 @@ export default function EducationForm({
         </DialogHeader>
 
         {/* Scrollable Body */}
-        <div className="overflow-y-auto flex-1 px-4 py-3 max-h-[calc(90vh-88px)]">
+        <div className="min-h-0 flex-1 overflow-y-auto px-3 py-2">
           <form id="education-form" onSubmit={handleSubmit(onSubmit)} className="space-y-3">
 
             <div className="space-y-1">
-              <label className="text-[11px] uppercase tracking-[0.12em] text-muted-foreground">
+              <label className="text-[11px] uppercase text-muted-foreground">
                 {t('education.title') || 'Title'}
               </label>
               <Input className="h-9 text-sm" {...register('title', { required: true })} />
@@ -192,7 +192,7 @@ export default function EducationForm({
             </div>
 
             <div className="space-y-1">
-              <label className="text-[11px] uppercase tracking-[0.12em] text-muted-foreground">
+              <label className="text-[11px] uppercase text-muted-foreground">
                 {t('education.institution') || 'Institution'}
               </label>
               <Input className="h-9 text-sm" {...register('institution', { required: true })} />
@@ -200,7 +200,7 @@ export default function EducationForm({
             </div>
 
             <div className="space-y-1">
-              <label className="text-[11px] uppercase tracking-[0.12em] text-muted-foreground">
+              <label className="text-[11px] uppercase text-muted-foreground">
                 {t('education.level') || 'Level'}
               </label>
               <select
@@ -216,15 +216,15 @@ export default function EducationForm({
               </select>
             </div>
 
-            <div className="grid grid-cols-2 gap-2">
+            <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
               <div className="space-y-1">
-                <label className="text-[11px] uppercase tracking-[0.12em] text-muted-foreground">
+                <label className="text-[11px] uppercase text-muted-foreground">
                   {t('education.startDate') || 'Start Date'}
                 </label>
                 <Input className="h-9 text-sm" type="date" {...register('startDate')} />
               </div>
               <div className="space-y-1">
-                <label className="text-[11px] uppercase tracking-[0.12em] text-muted-foreground">
+                <label className="text-[11px] uppercase text-muted-foreground">
                   {t('education.endDate') || 'End Date'}
                 </label>
                 <Input className="h-9 text-sm" type="date" {...register('endDate')} />
@@ -232,7 +232,7 @@ export default function EducationForm({
             </div>
 
             <div className="space-y-1">
-              <label className="text-[11px] uppercase tracking-[0.12em] text-muted-foreground">
+              <label className="text-[11px] uppercase text-muted-foreground">
                 {t('education.description') || 'Description'}
               </label>
               <textarea
@@ -242,7 +242,7 @@ export default function EducationForm({
             </div>
 
             <div className="space-y-1">
-              <label className="text-[11px] uppercase tracking-[0.12em] text-muted-foreground">
+              <label className="text-[11px] uppercase text-muted-foreground">
                 {t('education.degreeFile') || 'Degree / Marksheet (optional)'}
               </label>
               <div className="rounded-md border border-input bg-background p-3 space-y-1">
@@ -258,7 +258,7 @@ export default function EducationForm({
         </div>
 
         {/* Sticky Footer */}
-        <div className="shrink-0 flex items-center justify-end gap-2 px-4 py-3 border-t border-border">
+        <div className="flex shrink-0 flex-col-reverse gap-2 border-t border-border px-3 py-2 sm:flex-row sm:items-center sm:justify-end">
           <Button type="button" variant="ghost" size="sm" onClick={onClose}>
             {t('education.cancel') || 'Cancel'}
           </Button>

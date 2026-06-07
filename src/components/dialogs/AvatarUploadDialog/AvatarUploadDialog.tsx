@@ -175,19 +175,19 @@ export default function AvatarUploadDialog({ personId, children, sharedToken }: 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>{children}</DialogTrigger>
-      <DialogContent className="max-w-lg w-full p-0 overflow-hidden rounded-lg">
+      <DialogContent className="flex w-[calc(100vw-1rem)] max-w-lg flex-col overflow-hidden p-0">
         <DialogCloseButton />
-        <DialogHeader className="px-6 pt-6 pb-2">
+        <DialogHeader className="shrink-0 px-3 pb-2 pt-3 sm:px-4 sm:pt-4">
           <DialogTitle>{t('dialogs.avatarUpload.title')}</DialogTitle>
           <DialogDescription>{t('dialogs.avatarUpload.description')}</DialogDescription>
         </DialogHeader>
 
-        <div className="px-6 pb-6 space-y-4">
+        <div className="min-h-0 flex-1 space-y-3 overflow-y-auto px-3 pb-3 pt-3 sm:space-y-4 sm:px-4 sm:pb-4">
           <div
             onDragOver={(e) => { e.preventDefault(); setDragActive(true) }}
             onDragLeave={() => setDragActive(false)}
             onDrop={handleDrop}
-            className={`border rounded-xl p-4 text-center transition-colors ${dragActive ? 'border-primary bg-primary/10' : 'border-dashed border-border bg-muted/40'
+            className={`rounded-lg border p-3 text-center transition-colors sm:rounded-xl sm:p-4 ${dragActive ? 'border-primary bg-primary/10' : 'border-dashed border-border bg-muted/40'
               }`}
           >
             <div className="flex items-center gap-3">
@@ -205,7 +205,7 @@ export default function AvatarUploadDialog({ personId, children, sharedToken }: 
                 <p className="text-xs font-medium text-foreground truncate">
                   {file ? file.name : t('dialogs.avatarUpload.dragDropPrompt')}
                 </p>
-                <p className="text-xs text-muted-foreground mt-0.5">
+                <p className="mt-0.5 text-xs leading-snug text-muted-foreground">
                   {t('dialogs.avatarUpload.dragDropHint')}
                 </p>
                 <label className="mt-2 inline-flex items-center rounded-full border border-input px-3 py-1 text-xs font-medium text-foreground cursor-pointer hover:bg-muted">

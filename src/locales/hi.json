@@ -10,7 +10,22 @@
     "recentActivity": "हाल की गतिविधियाँ",
     "upgradeToPro": "प्रो में अपग्रेड करें",
     "upgradeDescription": "अनलिमिटेड ट्री, डीएनए रिकॉर्ड मिलान, प्रायोरिटी खोज, और उन्नत साझाकरण नियंत्रण।",
-    "upgradeButton": "अपग्रेड — ₹699/माह"
+    "upgradeButton": "अपग्रेड — ₹699/माह",
+    "dashboard": "डैशबोर्ड",
+    "familyTrees": "परिवार के पेड़",
+    "membersAdded": "सदस्य",
+    "sharedTrees": "साझा पेड़",
+    "recordsFound": "रिकॉर्ड",
+    "members": "सदस्य",
+    "sharedBadge": "साझा",
+    "activity": {
+      "CREATE_PERSON": "जोड़ दिया",
+      "CREATE_TREE": "बनाया",
+      "SHARE_TREE": "साझा किया",
+      "UPLOAD_MEDIA": "अपलोड किया",
+      "FOUND_RECORDS": "मिले",
+      "UPDATE_PERSON": "अपडेट किया"
+    }
   },
   "sidebar": {
     "main": "मुख्य",

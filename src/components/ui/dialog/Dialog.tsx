@@ -31,7 +31,7 @@ const DialogContent = React.forwardRef<
     <DialogPrimitive.Content
       ref={ref}
       className={cn(
-        'fixed left-[50%] top-[50%] z-50 grid w-[min(95vw,560px)] max-w-[95vw] translate-x-[-50%] translate-y-[-50%] gap-4 rounded-lg border border-border bg-card p-6 shadow-lg focus:outline-none data-[state=open]:animate-in data-[state=open]:zoom-in',
+        'fixed left-[50%] top-[50%] z-50 grid w-[min(calc(100vw-1rem),560px)] max-h-[calc(100dvh-1rem)] max-w-[calc(100vw-1rem)] translate-x-[-50%] translate-y-[-50%] gap-2 overflow-y-auto rounded-lg border border-border bg-card p-3 shadow-lg focus:outline-none data-[state=open]:animate-in data-[state=open]:zoom-in sm:gap-3 sm:p-4',
         className
       )}
       {...props}
@@ -46,7 +46,7 @@ const DialogHeader = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <div
     ref={ref}
-    className={cn('flex flex-col gap-2 text-left pb-2 border-b border-border', className)}
+    className={cn('flex flex-col gap-1.5 text-left pb-2 border-b border-border sm:gap-2', className)}
     {...props}
   />
 ))
@@ -58,7 +58,7 @@ const DialogFooter = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <div
     ref={ref}
-    className={cn('flex flex-col-reverse sm:flex-row sm:justify-end sm:space-x-2 gap-2 pt-3 border-t border-border', className)}
+    className={cn('flex flex-col-reverse gap-2 border-t border-border pt-3 sm:flex-row sm:justify-end sm:space-x-2', className)}
     {...props}
   />
 ))
@@ -70,7 +70,7 @@ const DialogTitle = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <DialogPrimitive.Title
     ref={ref}
-    className={cn('text-lg font-semibold text-foreground', className)}
+    className={cn('pr-8 text-base font-semibold text-foreground sm:text-lg', className)}
     {...props}
   />
 ))
@@ -82,7 +82,7 @@ const DialogDescription = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <DialogPrimitive.Description
     ref={ref}
-    className={cn('text-sm text-muted-foreground', className)}
+    className={cn('text-xs text-muted-foreground sm:text-sm', className)}
     {...props}
   />
 ))

@@ -1,6 +1,7 @@
 // src/api/treesApi.ts
 import { api } from './axios'
 import type { ApiResponse, CreateTreePayload, TreeSummary } from '@/types'
+import { DashboardData, DashboardResponse } from '@/types/dashboard.types';
 import type { CollaboationItem, CreatePersonData, EducationItem, MediaItem, PersonDetail, RelationItem, SharedTreeAccess, SharedTreeData, SharedTreeItem, ShareLinkUpdatePayload, treeLink } from '@/types/familyTree'
 
 export const treesApi = {
@@ -36,5 +37,7 @@ export const treesApi = {
   deleteSharedPerson: (token: string, personId: string) =>
     api.delete<ApiResponse<{ personId: string; decrementAddedCount: boolean }>>(`/shared-trees/${token}/person/${personId}`),
 
-  getCollaborations:()=>api.get<ApiResponse<CollaboationItem[]>>('/trees/collaborations'),
+  getCollaborations: () => api.get<ApiResponse<CollaboationItem[]>>('/trees/collaborations'),
+
+  getDashboardStats: () => api.get<ApiResponse<DashboardData>>('/dashboard'),
 }

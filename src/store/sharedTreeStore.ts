@@ -3,9 +3,14 @@ import { treesApi } from '@/api/treesApi'
 import type { MediaItem, PersonDetail, RelationItem, SharedTreeAccess } from '@/types/familyTree'
 import type { TreeSummary } from '@/types'
 
+const SHARED_TREE_CACHE_DURATION_MS = 60 * 1000
+const pendingSharedTreeLoads = new Map<string, Promise<void>>()
+
 export interface TreeStoreState {
     verifyingTree: boolean
     isLoading: boolean
+    token: string | null
+    loadedAt: number | null
     access: SharedTreeAccess | null
     treeData: TreeSummary | null
     relations: RelationItem[]
@@ -23,6 +28,8 @@ export interface TreeStoreState {
 export const useSharedTreeStore = create<TreeStoreState>((set, get) => ({
     verifyingTree: false,
     isLoading: false,
+    token: null,
+    loadedAt: null,
     access: null,
     treeData: null,
     relations: [],
@@ -31,36 +38,53 @@ export const useSharedTreeStore = create<TreeStoreState>((set, get) => ({
     error: null,
 
     verifyAndLoad: async (token) => {
-        set({ verifyingTree: true, isLoading: true, error: null })
-        try {
-            const response = await treesApi.getSharedTree(token)
-            const data = response.data.data
-            set({
-                access: {
-                    token: data.token,
-                    tree: data.tree,
-                    permission: data.permission,
-                    rights: data.rights,
-                    personLimit: data.personLimit,
-                    expiresAt: data.expiresAt,
-                    member: data.member,
-                },
-                treeData: data.tree,
-                people: data.people.map((person) => ({
-                    ...person,
-                    education: person.education ?? [],
-                    media: person.media ?? [],
-                })),
-                relations: data.relations,
-                media: data.media,
-            })
-        } catch (error) {
-            set({
-                error: error instanceof Error ? error.message : 'Unable to open shared tree',
-            })
-        } finally {
-            set({ verifyingTree: false, isLoading: false })
-        }
+        const state = get()
+        const cacheIsFresh =
+            state.token === token &&
+            state.loadedAt !== null &&
+            Date.now() - state.loadedAt < SHARED_TREE_CACHE_DURATION_MS
+
+        if (cacheIsFresh) return
+        if (pendingSharedTreeLoads.has(token)) return pendingSharedTreeLoads.get(token)
+
+        const pending = (async () => {
+            set({ verifyingTree: true, isLoading: true, error: null })
+            try {
+                const response = await treesApi.getSharedTree(token)
+                const data = response.data.data
+                set({
+                    token,
+                    loadedAt: Date.now(),
+                    access: {
+                        token: data.token,
+                        tree: data.tree,
+                        permission: data.permission,
+                        rights: data.rights,
+                        personLimit: data.personLimit,
+                        expiresAt: data.expiresAt,
+                        member: data.member,
+                    },
+                    treeData: data.tree,
+                    people: data.people.map((person) => ({
+                        ...person,
+                        education: person.education ?? [],
+                        media: person.media ?? [],
+                    })),
+                    relations: data.relations,
+                    media: data.media,
+                })
+            } catch (error) {
+                set({
+                    error: error instanceof Error ? error.message : 'Unable to open shared tree',
+                })
+            } finally {
+                set({ verifyingTree: false, isLoading: false })
+                pendingSharedTreeLoads.delete(token)
+            }
+        })()
+
+        pendingSharedTreeLoads.set(token, pending)
+        return pending
     },
     upsertPerson: (person) =>
         set((state) => ({
@@ -138,6 +162,5 @@ export const useSharedTreeStore = create<TreeStoreState>((set, get) => ({
                 }
                 : state.access,
         })),
-    clear: () => set({ access: null, treeData: null, people: [], relations: [], media: [], error: null }),
+    clear: () => set({ token: null, loadedAt: null, access: null, treeData: null, people: [], relations: [], media: [], error: null }),
 }))
-

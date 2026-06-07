@@ -207,9 +207,9 @@ const CreateUpdatePersonDialog: React.FC<CreateUpdatePersonDialogProps> = ({
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>{children}</DialogTrigger>
-      <DialogContent className="flex flex-col gap-0 p-0 overflow-hidden w-full h-[100dvh] sm:h-auto sm:max-h-[90dvh] sm:rounded-lg sm:max-w-2xl lg:max-w-3xl">
+      <DialogContent className="flex w-[calc(100vw-0.75rem)] max-w-3xl max-h-[calc(100dvh-0.75rem)] flex-col gap-0 overflow-hidden p-0 sm:w-full sm:max-h-[90dvh]">
         <DialogCloseButton />
-        <DialogHeader className="shrink-0 px-6 pt-6 pb-3 border-b border-border">
+        <DialogHeader className="shrink-0 border-b border-border px-3 pb-2 pt-3 sm:px-4 sm:pb-3 sm:pt-4">
           <DialogTitle>
             {isEditMode
               ? t("dialogs.editPerson.title")
@@ -225,7 +225,7 @@ const CreateUpdatePersonDialog: React.FC<CreateUpdatePersonDialogProps> = ({
         <form
           id="create-person-form"
           onSubmit={handleSubmit(onSubmit)}
-          className="flex-1 overflow-y-auto px-5 py-4 space-y-4"
+          className="min-h-0 flex-1 space-y-3 overflow-y-auto px-3 py-2 sm:space-y-4 sm:px-4 sm:py-3"
         >
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div className="space-y-1">
@@ -279,7 +279,7 @@ const CreateUpdatePersonDialog: React.FC<CreateUpdatePersonDialogProps> = ({
             </div>
           </div>
 
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
             <div className="space-y-1">
               <Label htmlFor="birthDate">
                 {t("dialogs.createPerson.birthDate")}
@@ -305,7 +305,7 @@ const CreateUpdatePersonDialog: React.FC<CreateUpdatePersonDialogProps> = ({
               setShowDeathDate(next);
               if (!next) setValue("deathDate", null);
             }}
-            className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg border border-input bg-muted/40 hover:bg-muted transition-colors text-left"
+            className="flex w-full items-center gap-3 rounded-lg border border-input bg-muted/40 px-3 py-2 text-left transition-colors hover:bg-muted sm:py-2.5"
           >
             <div
               className={`relative shrink-0 w-9 h-5 rounded-full transition-colors ${showDeathDate ? "bg-destructive/70" : "bg-input"}`}
@@ -315,10 +315,10 @@ const CreateUpdatePersonDialog: React.FC<CreateUpdatePersonDialogProps> = ({
               />
             </div>
             <div className="leading-tight">
-              <p className="text-sm font-medium">
+              <p className="text-sm font-medium leading-snug">
                 {t("dialogs.createPerson.deceasedQuestion")}
               </p>
-              <p className="text-xs text-muted-foreground">
+              <p className="text-xs leading-snug text-muted-foreground">
                 {t("dialogs.createPerson.deceasedDescription")}
               </p>
             </div>
@@ -369,7 +369,7 @@ const CreateUpdatePersonDialog: React.FC<CreateUpdatePersonDialogProps> = ({
           </div>
         </form>
 
-        <div className="shrink-0 flex justify-end gap-2 px-5 py-3 border-t border-border bg-background">
+        <div className="flex shrink-0 flex-col-reverse gap-2 border-t border-border bg-background px-3 py-2 sm:flex-row sm:justify-end sm:px-4">
           <DialogCloseButton asChild>
             <Button type="button" variant="outline" size="sm">
               {t("dialogs.createPerson.cancel")}

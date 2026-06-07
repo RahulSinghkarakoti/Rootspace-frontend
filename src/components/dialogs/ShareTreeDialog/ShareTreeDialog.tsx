@@ -136,16 +136,16 @@ const ShareTreeDialog = ({
             <DialogTrigger asChild>
                 {children}
             </DialogTrigger>
-            <DialogContent>
+            <DialogContent className="flex max-h-[calc(100dvh-1rem)] flex-col overflow-hidden p-0">
                 <DialogCloseButton />
-                <DialogHeader>
+                <DialogHeader className="shrink-0 px-3 pb-2 pt-3 sm:px-4 sm:pt-4">
                     <DialogTitle>Share Tree</DialogTitle>
                     <DialogDescription>
                         Create or review generated sharing links for this tree.
                     </DialogDescription>
                 </DialogHeader>
 
-                <div className="space-y-4 py-4">
+                <div className="min-h-0 flex-1 space-y-3 overflow-y-auto px-3 py-2 sm:space-y-4 sm:px-4 sm:py-3">
                     <div className="grid grid-cols-2 gap-2">
                         <Button
                             type="button"
@@ -166,7 +166,7 @@ const ShareTreeDialog = ({
                     </div>
 
                     {tab === 'create' ? (
-                        <div className="space-y-4">
+                        <div className="space-y-3 sm:space-y-4">
                             <div className="space-y-2">
                                 <label className="text-sm font-medium text-foreground">
                                     Permission Level
@@ -254,7 +254,7 @@ const ShareTreeDialog = ({
                                     No share links created yet. Generate one from the Create Link tab.
                                 </div>
                             ) : (
-                                <div className="space-y-3 max-h-[65vh] overflow-y-auto scrollbar-hide">
+                                <div className="space-y-3">
                                     {createdLinks.map((link) => (
                                         <ShareLinkCard
                                             key={link.id}
@@ -270,7 +270,7 @@ const ShareTreeDialog = ({
                     )}
                 </div>
 
-                <DialogFooter>
+                <DialogFooter className="shrink-0 px-3 pb-3 sm:px-4">
                     <Button
                         type="button"
                         variant="outline"

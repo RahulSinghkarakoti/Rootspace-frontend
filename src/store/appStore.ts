@@ -1,10 +1,18 @@
 import { create } from 'zustand'
 import { persist, createJSONStorage } from 'zustand/middleware'
 
+import type { DashboardData } from '@/types/dashboard.types'
+
 interface AppStore {
   theme: 'light' | 'dark'
   sidebarOpen: boolean
   sidebarCollapsed: boolean
+
+  // Dashboard cache
+  dashboard: DashboardData | null
+  dashboardFetchedAt: number | null
+  setDashboard: (data: DashboardData) => void
+  clearDashboard: () => void
 
   // Actions
   toggleTheme: () => void
@@ -20,6 +28,12 @@ export const useAppStore = create<AppStore>()(
       theme: 'dark',
       sidebarOpen: true,
       sidebarCollapsed: false,
+
+      // Dashboard cache
+      dashboard: null,
+      dashboardFetchedAt: null,
+      setDashboard: (data: DashboardData) => set({ dashboard: data, dashboardFetchedAt: Date.now() }),
+      clearDashboard: () => set({ dashboard: null, dashboardFetchedAt: null }),
 
       toggleTheme: () =>
         set((state) => {

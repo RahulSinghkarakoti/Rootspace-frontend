@@ -81,69 +81,71 @@ export default function AddTreeDialog({ children, onSuccess }: AddTreeDialogProp
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>{children}</DialogTrigger>
-      <DialogContent>
+      <DialogContent className="flex max-h-[calc(100dvh-1rem)] flex-col overflow-hidden p-0">
         <DialogCloseButton />
-        <DialogHeader>
+        <DialogHeader className="shrink-0 px-3 pb-2 pt-3 sm:px-4 sm:pt-4">
           <DialogTitle>{t('dialogs.createTree.title')}</DialogTitle>
           <DialogDescription>
             {t('dialogs.createTree.description')}
           </DialogDescription>
         </DialogHeader>
 
-        <form className="space-y-4 py-4" onSubmit={handleSubmit(onSubmit)}>
-          <div className="grid gap-1.5">
-            <Label htmlFor="treeName" className="text-sm font-medium">
-              {t('dialogs.createTree.treeName')}
-            </Label>
-            <Input
-              id="treeName"
-              {...register('treeName', { required: t('dialogs.createTree.treeNameRequired') })}
-              placeholder="Johnson Family Tree"
-            />
-            {errors.treeName && (
-              <p className="text-xs text-destructive">{errors.treeName.message}</p>
-            )}
+        <form className="flex min-h-0 flex-1 flex-col" onSubmit={handleSubmit(onSubmit)}>
+          <div className="min-h-0 flex-1 space-y-3 overflow-y-auto px-3 py-2 sm:space-y-4 sm:px-4">
+            <div className="grid gap-1.5">
+              <Label htmlFor="treeName" className="text-sm font-medium">
+                {t('dialogs.createTree.treeName')}
+              </Label>
+              <Input
+                id="treeName"
+                {...register('treeName', { required: t('dialogs.createTree.treeNameRequired') })}
+                placeholder="Johnson Family Tree"
+              />
+              {errors.treeName && (
+                <p className="text-xs text-destructive">{errors.treeName.message}</p>
+              )}
+            </div>
+
+            <div className="grid gap-1.5">
+              <Label htmlFor="treeType" className="text-sm font-medium">
+                {t('dialogs.createTree.treeType')}
+              </Label>
+              <Select value={treeType} onValueChange={(value) => setValue('type', value as CreateTreePayload['type'])}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select type" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="FAMILY">Family</SelectItem>
+                  <SelectItem value="EDUCATIONAL">Educational</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="grid gap-1.5">
+              <Label htmlFor="coverImage" className="text-sm font-medium">
+                {t('dialogs.createTree.coverImage')}
+              </Label>
+              <Input
+                id="coverImage"
+                {...register('coverImage')}
+                placeholder="https://..."
+              />
+            </div>
+
+            <div className="flex items-center gap-2">
+              <input
+                id="isPublic"
+                type="checkbox"
+                className="h-4 w-4 rounded border-input text-amber-500 focus:ring-amber-500"
+                {...register('isPublic')}
+              />
+              <Label htmlFor="isPublic" className="mb-0 text-sm font-medium">
+                {t('dialogs.createTree.publicTree')}
+              </Label>
+            </div>
           </div>
 
-          <div className="grid gap-1.5">
-            <Label htmlFor="treeType" className="text-sm font-medium">
-              {t('dialogs.createTree.treeType')}
-            </Label>
-            <Select value={treeType} onValueChange={(value) => setValue('type', value as CreateTreePayload['type'])}>
-              <SelectTrigger>
-                <SelectValue placeholder="Select type" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="FAMILY">Family</SelectItem>
-                <SelectItem value="EDUCATIONAL">Educational</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-
-          <div className="grid gap-1.5">
-            <Label htmlFor="coverImage" className="text-sm font-medium">
-              {t('dialogs.createTree.coverImage')}
-            </Label>
-            <Input
-              id="coverImage"
-              {...register('coverImage')}
-              placeholder="https://..."
-            />
-          </div>
-
-          <div className="flex items-center gap-2">
-            <input
-              id="isPublic"
-              type="checkbox"
-              className="h-4 w-4 rounded border-input text-amber-500 focus:ring-amber-500"
-              {...register('isPublic')}
-            />
-            <Label htmlFor="isPublic" className="mb-0 text-sm font-medium">
-              {t('dialogs.createTree.publicTree')}
-            </Label>
-          </div>
-
-          <DialogFooter>
+          <DialogFooter className="shrink-0 px-3 pb-3 sm:px-4">
             <Button type="button" variant="outline" size="sm" onClick={() => setOpen(false)}>
               {t('dialogs.createTree.cancel')}
             </Button>

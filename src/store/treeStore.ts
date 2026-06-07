@@ -4,6 +4,15 @@ import type { EducationItem, MediaItem, PersonDetail,SharedTreeItem, RelationIte
 import type { CreateTreePayload, TreeSummary } from '@/types'
 import { personApi } from '@/api/personApi'
 
+const DEFAULT_CACHE_DURATION_MS = 60 * 1000
+
+let pendingAllTrees: Promise<void> | null = null
+const pendingTreeLoads = new Map<number, Promise<void>>()
+const pendingTreeMediaLoads = new Map<number, Promise<void>>()
+const pendingEducationLoads = new Map<string, Promise<void>>()
+let pendingCollaborations: Promise<void> | null = null
+let pendingSharedTrees: Promise<void> | null = null
+
 export interface TreeStoreState {
   treesLoaded: boolean
   deletingTree: boolean
@@ -16,6 +25,12 @@ export interface TreeStoreState {
   treeMedia: MediaItem[]
   selectedPersonEducation: Record<string, EducationItem[]>
   lastLoadedAt: number | null
+  treesLoadedAt: number | null
+  currentTreeLoadedAt: number | null
+  treeMediaLoadedAt: Record<number, number>
+  selectedPersonEducationLoadedAt: Record<string, number>
+  collaborationsLoadedAt: number | null
+  sharedTreesLoadedAt: number | null
   cacheDurationMs: number
   isLoading: boolean
   error: string | null
@@ -61,7 +76,13 @@ export const useTreeStore = create<TreeStoreState>((set, get) => ({
   treeMedia: [],
   selectedPersonEducation: {},
   lastLoadedAt: null,
-  cacheDurationMs: 60 * 1000,
+  treesLoadedAt: null,
+  currentTreeLoadedAt: null,
+  treeMediaLoadedAt: {},
+  selectedPersonEducationLoadedAt: {},
+  collaborationsLoadedAt: null,
+  sharedTreesLoadedAt: null,
+  cacheDurationMs: DEFAULT_CACHE_DURATION_MS,
   isLoading: false,
   error: null,
   gettinCollaborations: false,
@@ -129,24 +150,38 @@ sharedTrees: [],
 
 
   loadAllTrees: async () => {
-    set({ isLoading: true, error: null })
-    try {
-      const response = await treesApi.getAll()
-      set({ trees: response.data.data })
-    } catch (error) {
-      set({
-        error: error instanceof Error ? error.message : 'Unable to load trees',
-      })
-    } finally {
-      set({ isLoading: false })
-    }
+    const state = get()
+    const cacheIsFresh =
+      state.treesLoaded &&
+      state.treesLoadedAt !== null &&
+      Date.now() - state.treesLoadedAt < state.cacheDurationMs
+
+    if (cacheIsFresh) return
+    if (pendingAllTrees) return pendingAllTrees
+
+    pendingAllTrees = (async () => {
+      set({ isLoading: true, error: null })
+      try {
+        const response = await treesApi.getAll()
+        set({ trees: response.data.data, treesLoaded: true, treesLoadedAt: Date.now() })
+      } catch (error) {
+        set({
+          error: error instanceof Error ? error.message : 'Unable to load trees',
+        })
+      } finally {
+        set({ isLoading: false })
+        pendingAllTrees = null
+      }
+    })()
+
+    return pendingAllTrees
   },
   createTree: async (payload) => {
     set({ error: null, creatingTree: true })
     try {
       const response = await treesApi.create(payload)
       const newTree = response.data.data
-      set((state) => ({ trees: [...state.trees, newTree] }))
+      set((state) => ({ trees: [...state.trees, newTree], treesLoadedAt: Date.now() }))
       return newTree
     } catch (error) {
       const errorMessage =
@@ -169,6 +204,8 @@ sharedTrees: [],
         relations: state.currentTreeId === treeId ? [] : state.relations,
         treeMedia: state.currentTreeId === treeId ? [] : state.treeMedia,
         selectedPersonEducation: state.currentTreeId === treeId ? {} : state.selectedPersonEducation,
+        treesLoadedAt: Date.now(),
+        currentTreeLoadedAt: state.currentTreeId === treeId ? null : state.currentTreeLoadedAt,
       }))
     } catch (error) {
       const errorMessage =
@@ -187,36 +224,58 @@ sharedTrees: [],
       relations: [],
       treeMedia: [],
       selectedPersonEducation: {},
+      currentTreeLoadedAt: null,
+      treeMediaLoadedAt: {},
+      selectedPersonEducationLoadedAt: {},
       isLoading: false,
       error: null,
     }),
 
   loadCurrentTree: async (treeId, force = false) => {
-    set({ isLoading: true, error: null, currentTreeId: treeId })
-    try {
-      const [treeResponse, peopleResponse, relationsResponse] = await Promise.all([
-        treesApi.getOne(String(treeId)),
-        treesApi.getAllTreePerson(treeId),
-        treesApi.getTreeRelations(treeId),
-      ])
+    const state = get()
+    const cacheIsFresh =
+      !force &&
+      state.currentTreeId === treeId &&
+      state.currentTree !== null &&
+      state.currentTreeLoadedAt !== null &&
+      Date.now() - state.currentTreeLoadedAt < state.cacheDurationMs
 
-      set({
-        currentTree: treeResponse.data.data,
-        people: peopleResponse.data.data.map((person) => ({
-          ...person,
-          education: person.education ?? [],
-          media: person.media ?? [],
-        })),
-        relations: relationsResponse.data.data,
-      })
-    } catch (error) {
-      console.error(error)
-      set({
-        error: error instanceof Error ? error.message : 'Unable to load tree data',
-      })
-    } finally {
-      set({ isLoading: false })
-    }
+    if (cacheIsFresh) return
+    if (!force && pendingTreeLoads.has(treeId)) return pendingTreeLoads.get(treeId)
+
+    const pending = (async () => {
+      set({ isLoading: true, error: null, currentTreeId: treeId })
+      try {
+        const [treeResponse, peopleResponse, relationsResponse] = await Promise.all([
+          treesApi.getOne(String(treeId)),
+          treesApi.getAllTreePerson(treeId),
+          treesApi.getTreeRelations(treeId),
+        ])
+
+        set({
+          currentTree: treeResponse.data.data,
+          people: peopleResponse.data.data.map((person) => ({
+            ...person,
+            education: person.education ?? [],
+            media: person.media ?? [],
+          })),
+          relations: relationsResponse.data.data,
+          currentTreeLoadedAt: Date.now(),
+          lastLoadedAt: Date.now(),
+        })
+      } catch (error) {
+        console.error(error)
+        set({
+          error: error instanceof Error ? error.message : 'Unable to load tree data',
+        })
+      } finally {
+        set({ isLoading: false })
+        pendingTreeLoads.delete(treeId)
+      }
+    })()
+
+    pendingTreeLoads.set(treeId, pending)
+    return pending
   },
 
   deleteNode: async (personId) => {
@@ -240,6 +299,7 @@ sharedTrees: [],
             },
           }
           : state.currentTree,
+        currentTreeLoadedAt: Date.now(),
       }))
     } catch (error) {
       console.error(error)
@@ -253,61 +313,125 @@ sharedTrees: [],
 
 
   loadTreeMedia: async (treeId) => {
-    set({ isLoading: true, error: null })
+    const state = get()
+    const cacheIsFresh =
+      state.treeMediaLoadedAt[treeId] !== undefined &&
+      Date.now() - state.treeMediaLoadedAt[treeId] < state.cacheDurationMs
 
-    try {
-      const response = await treesApi.getTreeMedia(treeId)
-      set({ treeMedia: response.data.data })
-    } catch (error) {
-      set({
-        error: error instanceof Error ? error.message : 'Unable to load tree media',
-      })
-    } finally {
-      set({ isLoading: false })
-    }
+    if (cacheIsFresh) return
+    if (pendingTreeMediaLoads.has(treeId)) return pendingTreeMediaLoads.get(treeId)
+
+    const pending = (async () => {
+      set({ isLoading: true, error: null })
+
+      try {
+        const response = await treesApi.getTreeMedia(treeId)
+        set((state) => ({
+          treeMedia: response.data.data,
+          treeMediaLoadedAt: { ...state.treeMediaLoadedAt, [treeId]: Date.now() },
+        }))
+      } catch (error) {
+        set({
+          error: error instanceof Error ? error.message : 'Unable to load tree media',
+        })
+      } finally {
+        set({ isLoading: false })
+        pendingTreeMediaLoads.delete(treeId)
+      }
+    })()
+
+    pendingTreeMediaLoads.set(treeId, pending)
+    return pending
   },
 
   loadPersonEducation: async (personId) => {
-    set({ isLoading: true, error: null })
+    const state = get()
+    const cacheIsFresh =
+      state.selectedPersonEducation[personId] !== undefined &&
+      state.selectedPersonEducationLoadedAt[personId] !== undefined &&
+      Date.now() - state.selectedPersonEducationLoadedAt[personId] < state.cacheDurationMs
 
-    try {
-      const response = await treesApi.getPersonEducation(personId)
-      set((state) => ({
-        selectedPersonEducation: {
-          ...state.selectedPersonEducation,
-          [personId]: response.data.data,
-        },
-      }))
-    } catch (error) {
-      set({
-        error: error instanceof Error ? error.message : 'Unable to load education details',
-      })
-    } finally {
-      set({ isLoading: false })
-    }
+    if (cacheIsFresh) return
+    if (pendingEducationLoads.has(personId)) return pendingEducationLoads.get(personId)
+
+    const pending = (async () => {
+      set({ isLoading: true, error: null })
+
+      try {
+        const response = await treesApi.getPersonEducation(personId)
+        set((state) => ({
+          selectedPersonEducation: {
+            ...state.selectedPersonEducation,
+            [personId]: response.data.data,
+          },
+          selectedPersonEducationLoadedAt: {
+            ...state.selectedPersonEducationLoadedAt,
+            [personId]: Date.now(),
+          },
+        }))
+      } catch (error) {
+        set({
+          error: error instanceof Error ? error.message : 'Unable to load education details',
+        })
+      } finally {
+        set({ isLoading: false })
+        pendingEducationLoads.delete(personId)
+      }
+    })()
+
+    pendingEducationLoads.set(personId, pending)
+    return pending
   },
   loadCollaborations: async () => {
-    set({ gettinCollaborations: true, error: null })
-    try {
-      const response = await treesApi.getCollaborations()
-      set({ collaborations: response.data.data })
-    } catch (error) {
-      set({
-        error: error instanceof Error ? error.message : 'Unable to load collaborations',
-      })
-    } finally {
-      set({ gettinCollaborations: false })
-    }
+    const state = get()
+    const cacheIsFresh =
+      state.collaborationsLoadedAt !== null &&
+      Date.now() - state.collaborationsLoadedAt < state.cacheDurationMs
+
+    if (cacheIsFresh) return
+    if (pendingCollaborations) return pendingCollaborations
+
+    pendingCollaborations = (async () => {
+      set({ gettinCollaborations: true, error: null })
+      try {
+        const response = await treesApi.getCollaborations()
+        set({ collaborations: response.data.data, collaborationsLoadedAt: Date.now() })
+      } catch (error) {
+        set({
+          error: error instanceof Error ? error.message : 'Unable to load collaborations',
+        })
+      } finally {
+        set({ gettinCollaborations: false })
+        pendingCollaborations = null
+      }
+    })()
+
+    return pendingCollaborations
   },
   loadSharedTrees: async () => {
-    set({ gettingSharedTrees: true, error: null })
-    try {
-      const response = await treesApi.getAllSharedTree()
-      set({ sharedTrees: response.data.data })
-    } catch (error) {
-      set({
-        error: error instanceof Error ? error.message : 'Unable to load shared trees',
-      })
-    } finally {      set({ gettingSharedTrees: false })
-    } },
+    const state = get()
+    const cacheIsFresh =
+      state.sharedTreesLoadedAt !== null &&
+      Date.now() - state.sharedTreesLoadedAt < state.cacheDurationMs
+
+    if (cacheIsFresh) return
+    if (pendingSharedTrees) return pendingSharedTrees
+
+    pendingSharedTrees = (async () => {
+      set({ gettingSharedTrees: true, error: null })
+      try {
+        const response = await treesApi.getAllSharedTree()
+        set({ sharedTrees: response.data.data, sharedTreesLoadedAt: Date.now() })
+      } catch (error) {
+        set({
+          error: error instanceof Error ? error.message : 'Unable to load shared trees',
+        })
+      } finally {
+        set({ gettingSharedTrees: false })
+        pendingSharedTrees = null
+      }
+    })()
+
+    return pendingSharedTrees
+  },
 }))

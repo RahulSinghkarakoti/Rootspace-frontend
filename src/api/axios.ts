@@ -10,19 +10,48 @@ export const api = axios.create({
   withCredentials: true,
 })
 
-// ─── Request interceptor: attach access token ───────────────────────────────
+let refreshPromise: Promise<string> | null = null
+
+async function refreshAccessToken() {
+  if (!refreshPromise) {
+    refreshPromise = axios
+      .post(`${BASE_URL}/auth/refresh`, {}, { withCredentials: true })
+      .then((response) => {
+        const { accessToken, expiresAt } = response.data.data
+        useAuthStore.getState().updateAccessToken(accessToken, expiresAt)
+        return accessToken
+      })
+      .catch((error) => {
+        useAuthStore.getState().logout()
+        throw error
+      })
+      .finally(() => {
+        refreshPromise = null
+      })
+  }
+
+  return refreshPromise
+}
+
 api.interceptors.request.use(
-  (config: InternalAxiosRequestConfig) => {
-    const { tokens } = useAuthStore.getState()
+  async (config: InternalAxiosRequestConfig) => {
+    const { tokens, isTokenExpired } = useAuthStore.getState()
+
+    if (tokens?.accessToken && isTokenExpired()) {
+      const accessToken = await refreshAccessToken()
+      config.headers.Authorization = `Bearer ${accessToken}`
+      return config
+    }
+
     if (tokens?.accessToken) {
       config.headers.Authorization = `Bearer ${tokens.accessToken}`
     }
+
     return config
   },
   (error) => Promise.reject(error)
 )
 
-// ─── Response interceptor: handle 401 → refresh token ───────────────────────
 let isRefreshing = false
 let pendingQueue: Array<{
   resolve: (token: string) => void
@@ -44,15 +73,11 @@ api.interceptors.response.use(
       _retry?: boolean
     }
 
-    if (error.response?.status === 401 && !originalRequest._retry) {
+    if (error.response?.status === 401 && originalRequest && !originalRequest._retry) {
       originalRequest._retry = true
 
-      const { tokens, updateAccessToken, logout } = useAuthStore.getState()
- 
-
       if (isRefreshing) {
-        // Queue up requests while refresh is in progress
-        return new Promise((resolve, reject) => {
+        return new Promise<string>((resolve, reject) => {
           pendingQueue.push({ resolve, reject })
         }).then((token) => {
           originalRequest.headers.Authorization = `Bearer ${token}`
@@ -63,20 +88,13 @@ api.interceptors.response.use(
       isRefreshing = true
 
       try {
-        const response = await axios.post(`${BASE_URL}/auth/refresh`,{},{ withCredentials: true,})
-        console.log(response)
-        const { accessToken, expiresAt } = response.data.data
-        console.log(accessToken, expiresAt )
-        updateAccessToken(accessToken, expiresAt)
+        const accessToken = await refreshAccessToken()
         processPendingQueue(null, accessToken)
 
         originalRequest.headers.Authorization = `Bearer ${accessToken}`
         return api(originalRequest)
       } catch (refreshError) {
         processPendingQueue(refreshError, null)
-        console.log('refresh token not found loging out v2')
-        // logout()
-        // window.location.href = '/login'
         return Promise.reject(refreshError)
       } finally {
         isRefreshing = false
