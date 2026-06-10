@@ -164,7 +164,7 @@ export function FamilyMemberNode({ data }: { data: FamilyMemberNodeData }) {
 
         {/* Name + dates */}
         <div className="px-2 pb-3 text-center">
-          <p className={`text-[12.5px] font-semibold truncate leading-tight ${isDeceased ? "text-neutral-500" : "text-neutral-900"}`}>
+          <p className={`text-[12.5px] font-semibold leading-tight whitespace-normal break-words ${isDeceased ? "text-neutral-500" : "text-neutral-900"}`}>
             {data.name}
           </p>
           {data.dates && (
