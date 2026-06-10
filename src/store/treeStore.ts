@@ -1,6 +1,6 @@
 import { create } from 'zustand'
 import { treesApi } from '@/api/treesApi'
-import type { EducationItem, MediaItem, PersonDetail,SharedTreeItem, RelationItem, CollaboationItem } from '@/types/familyTree'
+import type { EducationItem, MediaItem, PersonDetail, SharedTreeItem, RelationItem, CollaboationItem } from '@/types/familyTree'
 import type { CreateTreePayload, TreeSummary } from '@/types'
 import { personApi } from '@/api/personApi'
 
@@ -39,10 +39,10 @@ export interface TreeStoreState {
   gettingSharedTrees: boolean
   setGettingCollaborations: (loading: boolean) => void
   collaborations: CollaboationItem[]
-loadCollaborations: () => Promise<void>
-sharedTrees: SharedTreeItem[]
-loadSharedTrees: () => Promise<void>
-setSharedTreeActive: (token: string, isActive: boolean) => void
+  loadCollaborations: () => Promise<void>
+  sharedTrees: SharedTreeItem[]
+  loadSharedTrees: () => Promise<void>
+  setSharedTreeActive: (token: string, isActive: boolean) => void
   setTreeLoaded: (loaded: boolean) => void
   setTrees: (trees: TreeSummary[]) => void
   createTree: (payload: CreateTreePayload) => Promise<TreeSummary>
@@ -57,7 +57,7 @@ setSharedTreeActive: (token: string, isActive: boolean) => void
   setTreeMedia: (media: MediaItem[]) => void
   setError: (error: string | null) => void
   clearTree: () => void
-  loadAllTrees: () => Promise<void>
+  loadAllTrees: (force?: boolean) => Promise<void>
   loadCurrentTree: (treeId: number, force?: boolean) => Promise<void>
   deleteNode: (personId: string) => Promise<void>
   loadTreeMedia: (treeId: number) => Promise<void>
@@ -89,7 +89,7 @@ export const useTreeStore = create<TreeStoreState>((set, get) => ({
   gettingSharedTrees: false,
   setGettingCollaborations: (loading) => set({ gettinCollaborations: loading }),
   collaborations: [],
-sharedTrees: [],
+  sharedTrees: [],
   setTrees: (trees) => set({ trees }),
   setTreeLoaded: () => set({ treesLoaded: true }),
   setCurrentTreeId: (treeId) => set({ currentTreeId: treeId }),
@@ -149,13 +149,14 @@ sharedTrees: [],
     })),
 
 
-  loadAllTrees: async () => {
+  loadAllTrees: async (force=false) => {
     const state = get()
     const cacheIsFresh =
+      !force &&
       state.treesLoaded &&
       state.treesLoadedAt !== null &&
       Date.now() - state.treesLoadedAt < state.cacheDurationMs
-
+    console.log('Loading all trees, cache is fresh:', cacheIsFresh)
     if (cacheIsFresh) return
     if (pendingAllTrees) return pendingAllTrees
 

@@ -42,7 +42,7 @@ export function Sidebar() {
       group: t('sidebar.account'),
       items: [
         { label: t('sidebar.settings'), icon: Settings, href: '/dashboard/settings' },
-        { label: t('sidebar.helpSupport'), icon: HelpCircle, href: '/dashboard/help' },
+        // { label: t('sidebar.helpSupport'), icon: HelpCircle, href: '/dashboard/help' },
       ],
     },
   ]

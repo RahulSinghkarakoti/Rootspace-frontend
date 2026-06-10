@@ -22,13 +22,15 @@ import { useTranslation } from "react-i18next";
 import { changeLanguage } from "@/i18n";
 import { useTreeStore } from "@/store/treeStore";
 import { treesApi } from "@/api/treesApi";
+import { useNavigate } from "react-router-dom";
 
 export function Navbar() {
   const { t, i18n } = useTranslation();
   const { toggleTheme, theme, toggleSidebar, sidebarCollapsed } = useAppStore();
-  const { user, logout, getProfile,getSessionInfo } = useAuth();
+  const { user, logout, getProfile, getSessionInfo } = useAuth();
   const loadCurrentTree = useTreeStore(s => s.loadCurrentTree)
 
+  const navigate = useNavigate();
   const initials =
     `${user?.firstName} ${user?.lastName}`
       ?.split(" ")
@@ -122,14 +124,14 @@ export function Navbar() {
         </DropdownMenu.Root>
 
         {/* Notifications */}
-        <Button
+        {/* <Button
           variant="ghost"
           size="icon"
           className="relative h-8 w-8 text-muted-foreground hover:text-foreground"
         >
           <Bell className="h-4 w-4" />
           <span className="absolute right-1.5 top-1.5 h-1.5 w-1.5 rounded-full bg-amber-500" />
-        </Button>
+        </Button> */}
 
         {/* User menu */}
         <DropdownMenu.Root>
@@ -144,9 +146,6 @@ export function Navbar() {
               <div className="hidden sm:flex flex-col items-start">
                 <span className="text-xs font-medium leading-none text-foreground">
                   {user?.firstName ?? "User"}
-                </span>
-                <span className="text-[10px] text-muted-foreground mt-0 capitalize">
-                  {user?.plan ?? "free"} plan
                 </span>
               </div>
               <ChevronDown className="h-3 w-3 text-muted-foreground hidden sm:block" />
@@ -166,20 +165,25 @@ export function Navbar() {
                 <p className="text-[10px] text-muted-foreground">
                   {user?.email}
                 </p>
-                <Badge variant="gold" className="mt-1 text-[8px]">
-                  {user?.plan?.toUpperCase()} PLAN
-                </Badge>
               </div>
 
               <DropdownMenu.Separator className="h-px bg-border my-0.5" />
 
               {[
-                { icon: User, label: t("navbar.profile") },
-                { icon: Settings, label: t("navbar.settings") },
-                { icon: CreditCard, label: t("navbar.billing") },
-              ].map(({ icon: Icon, label }) => (
+                {
+                  icon: User,
+                  label: t("navbar.profile"),
+                  path: "/dashboard/settings/profile",
+                },
+                {
+                  icon: Settings,
+                  label: t("navbar.settings"),
+                  path: "/dashboard/settings",
+                },
+              ].map(({ icon: Icon, label, path }) => (
                 <DropdownMenu.Item
                   key={label}
+                  onSelect={() => navigate(path)}
                   className="flex cursor-pointer items-center gap-2 rounded-md px-2.5 py-1.5 text-xs text-foreground outline-none transition-colors hover:bg-secondary focus:bg-secondary"
                 >
                   <Icon className="h-3.5 w-3.5 text-muted-foreground" />
@@ -195,12 +199,6 @@ export function Navbar() {
               >
                 <LogOut className="h-3.5 w-3.5" />
                 {t("navbar.signOut")}
-              </DropdownMenu.Item>
-              <DropdownMenu.Item
-                className="flex cursor-pointer items-center gap-2 rounded-md px-2.5 py-1.5 text-xs text-destructive outline-none transition-colors hover:bg-destructive/10 focus:bg-destructive/10"
-                onSelect={() => getSessionInfo()}
-              >
-                getSessionInfo
               </DropdownMenu.Item>
             </DropdownMenu.Content>
           </DropdownMenu.Portal>

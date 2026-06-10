@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import {
   X, ChevronDown, ChevronRight, BookOpen, Image, Info,
-  Calendar, User, FileText, GraduationCap, Film, MapPin, Camera,
+  Calendar, File, FileText, GraduationCap, Film, MapPin, Camera,
   Plus,
   Trash2,
   Pencil
@@ -11,35 +11,14 @@ import { useTreeStore } from '@/store/treeStore'
 import { Button } from '../ui/button'
 import { useMutation } from '@tanstack/react-query'
 import AvatarUploadDialog from '../dialogs/AvatarUploadDialog/AvatarUploadDialog'
+import EducationMediaDialog from '@/components/dialogs/EducationMediaDialog/EducationMediaDialog'
 import EducationForm from '@/components/education/EducationForm'
 import { educationApi } from '@/api/educationApi'
-import { EducationItem } from '@/types/familyTree'
+import { EducationItem, PersonDetail } from '@/types/familyTree'
 import { useToast } from '@/components/ui/toast'
 import { getErrorMessage } from '@/lib/errors'
 
-interface MediaItem {
-  id: number
-  type: 'photo' | 'video' | 'document'
-  title: string
-  date: string
-  url?: string
-  thumbnail?: string
-  description?: string
-}
 
-interface PersonDetail {
-  id: string
-  slug: string
-  fullName: string
-  gender: 'male' | 'female'
-  birthDate: string | null
-  deathDate: string | null
-  notes?: string
-  birthPlace?: string
-  avatarUrl?: string
-  education: EducationItem[]
-  media: MediaItem[]
-}
 
 interface Props {
   fullLength?: boolean
@@ -139,7 +118,7 @@ export function PersonDetailSidebar({
     if (!date) return null
     return new Date(date).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })
   }
- 
+
   const mutation = useMutation({
     mutationFn: async (personId: string) => {
       if (onDeletePerson) {
@@ -205,6 +184,16 @@ export function PersonDetailSidebar({
     }
   }
 
+  const educationMediaUrls = person?.education
+    ?.map((item) => item.degreeUrl)
+    .filter((url): url is string => Boolean(url)) ?? []
+
+  const personMediaUrls = person?.media
+    ?.map((item) => item.url)
+    .filter((url): url is string => Boolean(url)) ?? []
+
+  const mediaUrls = [...educationMediaUrls, ...personMediaUrls]
+
   return (
     <div
       className={`
@@ -234,14 +223,14 @@ export function PersonDetailSidebar({
             <div className="relative flex-shrink-0">
               <div
                 className={`
-      relative flex items-center justify-center
-      w-16 h-16 rounded-2xl border-2 overflow-hidden
-      flex-shrink-0
-      ${isFemale
+                    relative flex items-center justify-center
+                    w-16 h-16 rounded-2xl border-2 overflow-hidden
+                    flex-shrink-0
+                    ${isFemale
                     ? 'border-rose-400/50 bg-rose-500/15 text-rose-300'
                     : 'border-sky-400/50 bg-sky-500/15 text-sky-300'
                   }
-    `}
+              `}
               >
                 {person?.avatarUrl ? (
                   <img src={person.avatarUrl} alt={person.fullName} className="w-full h-full object-cover" />
@@ -308,7 +297,7 @@ export function PersonDetailSidebar({
           title="Education"
           icon={<GraduationCap className="w-3.5 h-3.5" />}
           count={person?.education?.length}
-          subtitle={person?.education && person.education.length > 0 ? `${person.education[0].degree || person.education[0].title} · ${person.education[0].institution}` : undefined}
+        // subtitle={person?.education && person.education.length > 0 ? `${person.education[0].degree || person.education[0].title} · ${person.education[0].institution}` : undefined}
         >
           {!person?.education?.length ? (
             <div className="flex flex-col items-center justify-center py-6 gap-3 text-center">
@@ -373,6 +362,14 @@ export function PersonDetailSidebar({
                                 <Pencil className="w-3 h-3" />
                               </Button>
                             </EducationForm>
+                            <EducationMediaDialog urls={educationMediaUrls}>
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                className="h-6 w-6 rounded-full "
+                              ><File   className="w-3 h-3" />
+                              </Button>
+                            </EducationMediaDialog>
                             <Button
                               variant="ghost"
                               size="icon"
@@ -396,53 +393,6 @@ export function PersonDetailSidebar({
           )}
         </Section>
 
-        {/* Media */}
-        <Section
-          title="Media"
-          icon={<Image className="w-3.5 h-3.5" />}
-          count={person?.media?.length}
-          defaultOpen={false}
-        >
-          {person?.media?.length === 0 ? (
-            <p className="text-[12px] text-muted-foreground/60 italic">
-              {t('personDetail.noMediaItems') || 'No media items.'}
-            </p>
-          ) : (
-            <div className="space-y-2">
-              {(person?.media ?? []).map((item) => (
-                <div
-                  key={item.id}
-                  className="flex items-start gap-3 p-3 rounded-xl bg-white/4 border border-white/8 hover:bg-white/6 transition-colors cursor-pointer"
-                >
-                  {/* Thumbnail placeholder */}
-                  <div
-                    className={`
-                      flex-shrink-0 flex items-center justify-center
-                      w-10 h-10 rounded-lg border text-xs
-                      ${MEDIA_COLOR[item.type]}
-                    `}
-                  >
-                    {MEDIA_ICON[item.type]}
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="text-[12px] font-medium text-foreground truncate">{item.title}</p>
-                    <p className="text-[10px] text-muted-foreground mt-0.5">{item.date}</p>
-                    {item.description && (
-                      <p className="text-[10px] text-muted-foreground/70 mt-1 leading-relaxed line-clamp-2">
-                        {item.description}
-                      </p>
-                    )}
-                  </div>
-                  <span
-                    className={`flex-shrink-0 text-[9px] uppercase tracking-wider px-1.5 py-0.5 rounded border font-medium ${MEDIA_COLOR[item.type]}`}
-                  >
-                    {item.type}
-                  </span>
-                </div>
-              ))}
-            </div>
-          )}
-        </Section>
 
       </div>
       {canDelete && (

@@ -183,7 +183,7 @@ export default function DashboardPage() {
         </div>
       </div>
 
-      <Card className="bg-gradient-to-r from-amber-500/10 to-amber-600/5 border-amber-500/20">
+      {/* <Card className="bg-gradient-to-r from-amber-500/10 to-amber-600/5 border-amber-500/20">
         <CardContent className="flex flex-col sm:flex-row items-center gap-4 p-6">
           <Sparkles className="h-8 w-8 text-amber-500 shrink-0" />
           <div className="flex-1 text-center sm:text-left">
@@ -194,7 +194,7 @@ export default function DashboardPage() {
             {t('dashboard.upgradeButton')}
           </Button>
         </CardContent>
-      </Card>
+      </Card> */}
     </div>
   )
 }

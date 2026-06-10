@@ -15,7 +15,7 @@ export function DashboardLayout() {
       {/* Main content area */}
       <main
         className={cn(
-          'min-h-screen pt-14 sidebar-transition',
+          'min-h-dvh pt-14 sidebar-transition',
           'pl-0 lg:pl-[260px]',
           sidebarCollapsed && 'lg:pl-[68px]'
         )}

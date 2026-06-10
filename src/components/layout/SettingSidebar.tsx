@@ -7,8 +7,8 @@ const SettingSidebar = () => {
   const settingItems = [
     { name: 'Your Profile', path: '/dashboard/settings/profile' },
     { name: 'Apps And Sessions', path: '/dashboard/settings/apps-and-sessions' },
-    { name: 'Manage Theme', path: '/dashboard/settings/theme' },
-    { name: 'Premium', path: '/dashboard/settings/premium' },
+    // { name: 'Manage Theme', path: '/dashboard/settings/theme' },
+    // { name: 'Premium', path: '/dashboard/settings/premium' },
     { name: 'Privacy And Safety', path: '/dashboard/settings/privacy-and-safety' },
   ]
 

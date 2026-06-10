@@ -95,7 +95,7 @@ export default function App() {
                 <Route path="shared" element={<SharedTreeAccessPage />} />
 
                 <Route path="settings" element={<SettingsLayout />}>
-                  <Route index element={<SettingsPage />} />
+                  <Route index element={<SettingsProfilePage />} />
                   <Route path="profile" element={<SettingsProfilePage />} />
                   <Route path="apps-and-sessions" element={<SettingsAppsSessionsPage />} />
                   <Route path="privacy-and-safety" element={<SettingsPrivacySafetyPage />} />
