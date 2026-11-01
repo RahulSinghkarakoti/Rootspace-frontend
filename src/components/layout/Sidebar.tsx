@@ -8,8 +8,8 @@ import {
   Settings,
   HelpCircle,
   ChevronLeft,
-  TreePine,
 } from 'lucide-react'
+import logoImg from '@/assets/logo.png'
 import { cn } from '@/lib/utils'
 import { useAppStore } from '@/store/appStore'
 import { ScrollArea } from '@/components/ui/scroll-area'
@@ -64,10 +64,8 @@ export function Sidebar() {
           'lg:translate-x-0'
         )}
       >
-        <div className={cn('flex items-center gap-2 px-3 py-3', sidebarCollapsed && 'justify-center px-2')}>
-          <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-amber-500 shadow-md shadow-amber-500/30">
-            <TreePine className="h-4 w-4 text-amber-950" />
-          </div>
+        <div className={cn('flex items-center gap-2.5 px-3 py-3', sidebarCollapsed && 'justify-center px-2')}>
+          <img src={logoImg} alt="RootSpace" className="h-8 w-8 shrink-0 rounded-lg object-contain" />
           {!sidebarCollapsed && (
             <div className="flex flex-col">
               <span className="font-semibold text-sm leading-tight text-foreground">

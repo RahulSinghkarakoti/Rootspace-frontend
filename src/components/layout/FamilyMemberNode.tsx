@@ -46,12 +46,14 @@ export function FamilyMemberNode({ data }: { data: FamilyMemberNodeData }) {
   const canEditPerson = data.canEditPerson ?? true;
   const canUploadAvatar = data.canUploadAvatar ?? true;
 
-  const initials = data.name
-    .split(" ")
+  const initials = (data.name || '')
+    .trim()
+    .split(/\s+/)
+    .filter(Boolean)
     .map((n) => n[0])
     .join("")
     .slice(0, 2)
-    .toUpperCase();
+    .toUpperCase() || "?";
 
   return (
     <div

@@ -8,6 +8,7 @@
     "viewAll": "View all",
     "createANewFamilyTree": "Create a new family tree",
     "recentActivity": "Recent Activity",
+    "noRecentActivity": "No recent activity yet",
     "upgradeToPro": "Upgrade to Pro",
     "upgradeDescription": "Unlimited trees, DNA record matching, priority ancestral search, and advanced sharing controls.",
     "upgradeButton": "Upgrade — $9/mo",
@@ -92,6 +93,14 @@
     "noMediaItems": "No media items."
   },
   "dialogs": {
+    "deletePerson": {
+      "title": "Delete \"{{name}}\"?",
+      "description": "This action cannot be undone.",
+      "warning": "Deleting this person will permanently remove them from the family tree, along with all their relationships.",
+      "cancel": "Cancel",
+      "confirm": "Delete person",
+      "deleting": "Deleting..."
+    },
     "editPerson": {
       "title": "Edit person details",
       "description": "Update the information of this person. You can also change their relationships.",
@@ -118,6 +127,7 @@
       "title": "Add new person",
       "description": "Link this person to the selected node",
       "fullName": "Full name *",
+      "fullNameRequired": "Full name is required.",
       "fullNamePlaceholder": "e.g. Ramesh Kumar",
       "gender": "Gender",
       "male": "Male",

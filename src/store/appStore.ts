@@ -20,6 +20,7 @@ interface AppStore {
   toggleSidebar: () => void
   setSidebarOpen: (open: boolean) => void
   toggleSidebarCollapsed: () => void
+  setSidebarCollapsed: (collapsed: boolean) => void
 }
 
 export const useAppStore = create<AppStore>()(
@@ -55,6 +56,8 @@ export const useAppStore = create<AppStore>()(
 
       toggleSidebarCollapsed: () =>
         set((state) => ({ sidebarCollapsed: !state.sidebarCollapsed })),
+
+      setSidebarCollapsed: (sidebarCollapsed) => set({ sidebarCollapsed }),
     }),
     {
       name: 'rootspace-app',

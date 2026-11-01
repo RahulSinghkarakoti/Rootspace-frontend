@@ -1,6 +1,7 @@
 import { useEffect } from 'react'
 import { Navigate, useNavigate, useSearchParams } from 'react-router-dom'
-import { Loader2, TreePine } from 'lucide-react'
+import { Loader2 } from 'lucide-react'
+import logoImg from '@/assets/logo.png'
 import { useAuthStore } from '@/store/authStore'
 
 interface GoogleAuthPayload {
@@ -34,6 +35,9 @@ export default function GoogleCallbackPage() {
   useEffect(() => {
     if (!payload) return
 
+    // Immediately clean the query string from browser history to prevent token leakage
+    window.history.replaceState({}, document.title, window.location.pathname)
+
     try {
       const decoded = JSON.parse(decodeBase64Url(payload)) as GoogleAuthPayload
       const user = {
@@ -62,9 +66,7 @@ export default function GoogleCallbackPage() {
   return (
     <div className="min-h-screen bg-background flex items-center justify-center px-6">
       <div className="flex flex-col items-center gap-4 text-center">
-        <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-amber-500 shadow-md shadow-amber-500/30">
-          <TreePine className="h-6 w-6 text-amber-950" />
-        </div>
+        <img src={logoImg} alt="RootSpace" className="h-14 w-14 rounded-lg object-contain" />
         <div>
           <h1 className="font-display text-2xl font-bold text-foreground">Finishing sign in</h1>
           <p className="mt-2 text-sm text-muted-foreground">Taking you to your family trees...</p>

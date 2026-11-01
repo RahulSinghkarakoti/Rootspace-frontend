@@ -1,8 +1,8 @@
 // src/api/treesApi.ts
 import { api } from './axios'
 import type { ApiResponse, CreateTreePayload, TreeSummary } from '@/types'
-import { DashboardData, DashboardResponse } from '@/types/dashboard.types';
-import type { CollaboationItem, CreatePersonData, EducationItem, MediaItem, PersonDetail, RelationItem, SharedTreeAccess, SharedTreeData, SharedTreeItem, ShareLinkUpdatePayload, treeLink } from '@/types/familyTree'
+import { DashboardData } from '@/types/dashboard.types';
+import type { CollaboationItem, CreatePersonData, PersonDetail, RelationItem, SharedTreeAccess, SharedTreeData, SharedTreeItem, ShareLinkUpdatePayload, treeLink } from '@/types/familyTree'
 
 export const treesApi = {
   getAll: () => api.get<ApiResponse<TreeSummary[]>>('/trees'),
@@ -15,11 +15,6 @@ export const treesApi = {
   getAllTreePerson: (id: number) => api.get<ApiResponse<PersonDetail[]>>(`/trees/${id}/person`),
   getTreePerson: (id: number, personId: string) => api.get<ApiResponse<PersonDetail>>(`/trees/${id}/person/${personId}`),
   getTreeRelations: (id: number) => api.get<ApiResponse<RelationItem[]>>(`/trees/${id}/relations`),
-  getTreeMedia: (id: number) => api.get<ApiResponse<MediaItem[]>>(`/trees/${id}/media`),
-  getPersonEducation: (personId: string) => api.get<ApiResponse<EducationItem[]>>(`/people/${personId}/education`),
-
-
-
   genrateShareLink: (id: number, payload: { permission: string; expiresAt: string; personLimit?: number | null }) => api.post<ApiResponse<treeLink>>(`/trees/${id}/share`, payload),
   updateShareLink: (treeId: number, linkToken: string, payload: ShareLinkUpdatePayload) => api.patch<ApiResponse<treeLink>>(`/trees/${treeId}/share/${linkToken}`, payload),
   deleteShareLink: (linkToken: string, treeId: number) => api.delete(`/trees/${treeId}/share/${linkToken}`),

@@ -184,7 +184,7 @@ const CreateUpdatePersonDialog: React.FC<CreateUpdatePersonDialogProps> = ({
 
   const onSubmit = (data: CreatePersonData) => {
     const payload: CreatePersonData = {
-      fullName: data.fullName,
+      fullName: data.fullName.trim().replace(/\b\w/g, (c: string) => c.toUpperCase()),
       gender: data.gender,
       birthDate: data.birthDate,
       deathDate: data.deathDate,
@@ -237,17 +237,11 @@ const CreateUpdatePersonDialog: React.FC<CreateUpdatePersonDialogProps> = ({
                 placeholder={t("dialogs.createPerson.fullNamePlaceholder")}
                 {...register("fullName", {
                   required: true,
-                  onChange: (e) => {
-                    e.target.value = e.target.value.replace(
-                      /\b\w/g,
-                      (c: string) => c.toUpperCase()
-                    )
-                  }
                 })}
               />
               {errors.fullName && (
                 <p className="text-xs text-destructive">
-                  {t("dialogs.createTree.treeNameRequired")}
+                  {t("dialogs.createPerson.fullNameRequired")}
                 </p>
               )}
             </div>

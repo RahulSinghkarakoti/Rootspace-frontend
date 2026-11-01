@@ -1,11 +1,11 @@
 
 import { api } from './axios'
-const BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001/api'
+const BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api/v1'
 const GOOGLE_AUTH_URL = `${BASE_URL}/auth/google`
 
 // ─── Auth API helpers ────────────────────────────────────────────────────────
 export const authApi = {
-  login: (email: string, password: string) =>{ 
+  login: (email: string, password: string) =>{
     return api.post('/auth/login', { email, password })},
 
   register: (firstName: string, lastName: string, email: string, password: string) =>
@@ -25,7 +25,7 @@ export const authApi = {
 
   sendVerificationOtp: (email: string) =>
     api.post('/auth/send-verification-otp', { email }),
-  
+
   revokeSession: (sessionId: number) =>
     api.post('/auth/revoke-session/' + sessionId),
 

@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
-import { TreePine, Mail, Lock, User, Eye, EyeOff, ArrowRight, Loader2, Sun, Moon } from 'lucide-react'
+import { Mail, Lock, User, Eye, EyeOff, ArrowRight, Loader2, Sun, Moon } from 'lucide-react'
+import logoImg from '@/assets/logo.png'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -38,10 +39,8 @@ export default function RegisterPage() {
   return (
     <div className="min-h-screen bg-background flex flex-col">
       <div className="flex items-center justify-between p-6">
-        <Link to="/" className="flex items-center gap-2">
-          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-amber-500 shadow-md shadow-amber-500/30">
-            <TreePine className="h-4 w-4 text-amber-950" />
-          </div>
+        <Link to="/login" className="flex items-center gap-2.5">
+          <img src={logoImg} alt="RootSpace" className="h-8 w-8 rounded-lg object-contain" />
           <span className="font-display text-xl font-bold">
             Root<span className="text-amber-500">Space</span>
           </span>
@@ -162,9 +161,9 @@ export default function RegisterPage() {
 
             <p className="text-center text-xs text-muted-foreground">
               By creating an account, you agree to our{' '}
-              <a href="#" className="text-amber-500 hover:underline">Terms of Service</a>
+              <Link to="/tnc" className="text-amber-500 hover:underline">Terms of Service</Link>
               {' '}and{' '}
-              <a href="#" className="text-amber-500 hover:underline">Privacy Policy</a>
+              <Link to="/privacy" className="text-amber-500 hover:underline">Privacy Policy</Link>
             </p>
           </form>
 
@@ -176,6 +175,19 @@ export default function RegisterPage() {
           </p>
         </div>
       </div>
+
+      {/* Footer */}
+      <footer className="p-6 border-t border-border/40 text-center text-xs text-muted-foreground flex flex-wrap items-center justify-center gap-3">
+        <span>&copy; {new Date().getFullYear()} RootSpace</span>
+        <span>&bull;</span>
+        <Link to="/privacy" className="hover:text-foreground transition-colors hover:underline">
+          Privacy Policy
+        </Link>
+        <span>&bull;</span>
+        <Link to="/tnc" className="hover:text-foreground transition-colors hover:underline">
+          Terms &amp; Conditions
+        </Link>
+      </footer>
     </div>
   )
 }

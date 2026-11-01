@@ -116,14 +116,14 @@ export interface SharedTreeAccess {
   rights: string[]
   personLimit?: number | null
   expiresAt?: string | null
-  member: {
+  member?: {
     id: string
     tokenId: string
     userId: string
     addedPersonsCount: number
     joinedAt: string
     updatedAt: string
-  }
+  } | null
 }
 
 export interface SharedTreeData extends SharedTreeAccess {

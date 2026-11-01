@@ -3,6 +3,7 @@ import { useReactFlow } from "@xyflow/react";
 import { toPng } from "html-to-image";
 import CreatePersonDialog from "../dialogs/CreateUpdatePersonDialog/CreatePersonDialog";
 import { useTreeStore } from "../../store/treeStore";
+import { useToast } from "@/components/ui/toast";
 
 interface Props {
   memberCount: number;
@@ -13,16 +14,25 @@ interface Props {
 export function TreeToolbar({ memberCount, selectedName, toggleMinimap }: Props) {
   const { zoomIn, zoomOut, fitView } = useReactFlow();
   const currentTreeId = useTreeStore((state) => state.currentTreeId)
+  const toast = useToast();
 
   const exportPng = () => {
     const el = document.querySelector(".react-flow") as HTMLElement;
     if (!el) return;
-    toPng(el, { backgroundColor: "hsl(222 47% 11%)" }).then((url) => {
-      const a = document.createElement("a");
-      a.download = "family-tree.png";
-      a.href = url;
-      a.click();
-    });
+    const isDark = document.documentElement.classList.contains("dark");
+    const backgroundColor = isDark ? "#09090b" : "#ffffff";
+
+    toPng(el, { backgroundColor })
+      .then((url) => {
+        const a = document.createElement("a");
+        a.download = "family-tree.png";
+        a.href = url;
+        a.click();
+      })
+      .catch((err) => {
+        console.error("Failed to export PNG", err);
+        toast.error("Export Failed", "Could not export family tree as image.");
+      });
   };
 
   return (

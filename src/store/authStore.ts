@@ -1,6 +1,9 @@
 import { create } from 'zustand'
 import { persist, createJSONStorage } from 'zustand/middleware'
 import type { User, AuthTokens } from '@/types'
+import { useAppStore } from './appStore'
+import { useTreeStore } from './treeStore'
+import { useSharedTreeStore } from './sharedTreeStore'
 
 interface AuthStore {
   user: User | null
@@ -40,13 +43,21 @@ export const useAuthStore = create<AuthStore>()(
           isLoading: false,
         }),
 
-      logout: () =>
+      logout: () => {
+        try {
+          useAppStore.getState().clearDashboard()
+          useTreeStore.getState().reset()
+          useSharedTreeStore.getState().clear()
+        } catch (e) {
+          console.error('Failed to clear stores on logout', e)
+        }
         set({
           user: null,
           tokens: null,
           isAuthenticated: false,
           isLoading: false,
-        }),
+        })
+      },
 
       setLoading: (isLoading) => set({ isLoading }),
 

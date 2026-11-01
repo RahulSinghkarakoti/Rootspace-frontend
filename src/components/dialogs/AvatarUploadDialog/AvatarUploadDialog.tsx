@@ -14,6 +14,7 @@ import {
 } from '@/components/ui/dialog'
 import { uploadApi } from '@/api/uploadApi'
 import { useTreeStore } from '@/store/treeStore'
+import { useSharedTreeStore } from '@/store/sharedTreeStore'
 import { Camera, UploadCloud, X } from 'lucide-react'
 import { getErrorMessage } from '@/lib/errors'
 
@@ -39,8 +40,13 @@ export default function AvatarUploadDialog({ personId, children, sharedToken }: 
   const [dragActive, setDragActive] = React.useState(false)
   const [error, setError] = React.useState<string | null>(null)
 
-  const people = useTreeStore((state) => state.people)
-  const upsertPerson = useTreeStore((state) => state.upsertPerson)
+  const treePeople = useTreeStore((state) => state.people)
+  const treeUpsertPerson = useTreeStore((state) => state.upsertPerson)
+  const sharedPeople = useSharedTreeStore((state) => state.people)
+  const sharedUpsertPerson = useSharedTreeStore((state) => state.upsertPerson)
+
+  const people = sharedToken ? sharedPeople : treePeople
+  const upsertPerson = sharedToken ? sharedUpsertPerson : treeUpsertPerson
 
   const person = React.useMemo(
     () => people.find((item) => item.id === personId) ?? null,

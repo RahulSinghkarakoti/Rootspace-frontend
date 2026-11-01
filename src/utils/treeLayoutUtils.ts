@@ -722,6 +722,40 @@ function makeEdges(
 
 // ── Public entry point ────────────────────────────────────────────────────────
 
+export function applySelectedNode(nodes: Node[], selectedId: string | null): Node[] {
+    return nodes.map((node) => {
+        if (node.type !== 'familyMember') return node
+        const isSelected = node.id === selectedId
+        if (node.data.isSelected === isSelected) return node
+        return {
+            ...node,
+            data: {
+                ...node.data,
+                isSelected,
+            },
+        }
+    })
+}
+
+export function buildFamilyTreeLayout(
+    people: PersonDetail[],
+    relations: RelationItem[],
+    onNodeClick: (id: string, showInfo: boolean) => void,
+    treeId: number,
+): { nodes: Node[]; edges: Edge[] } {
+    if (people.length === 0) return { nodes: [], edges: [] }
+    const personIds = people.map(p => p.id)
+    const { parentToChildren, childToParents } = buildParentChildMap(relations)
+    const spouseOf = buildSpouseMap(relations)
+    const depths = assignDepths(personIds, parentToChildren, childToParents, spouseOf)
+    const byDepth = buildCoupleUnits(personIds, depths, spouseOf, parentToChildren)
+    const pos = computePositions(byDepth, childToParents)
+    const nodes = makeNodes(people, pos, depths, parentToChildren, byDepth, null, onNodeClick, treeId, relations)
+    const edges = makeEdges(relations, byDepth, parentToChildren, pos)
+
+    return { nodes, edges }
+}
+
 export function buildFamilyTreeGraph(
     people: PersonDetail[],
     relations: RelationItem[],
@@ -729,16 +763,9 @@ export function buildFamilyTreeGraph(
     onNodeClick: (id: string, showInfo: boolean) => void,
     treeId: number,
 ): { nodes: Node[]; edges: Edge[] } {
-    if (people.length === 0) return { nodes: [], edges: [] }
-  console.log('buildFamilyTreeGraph',people.length, relations.length)
-    const personIds = people.map(p => p.id)
-    const { parentToChildren, childToParents } = buildParentChildMap(relations)
-    const spouseOf = buildSpouseMap(relations)
-    const depths = assignDepths(personIds, parentToChildren, childToParents, spouseOf)
-    const byDepth = buildCoupleUnits(personIds, depths, spouseOf, parentToChildren)
-    const pos = computePositions(byDepth, childToParents)
-    const nodes = makeNodes(people, pos, depths, parentToChildren, byDepth, selectedId, onNodeClick, treeId, relations)
-    const edges = makeEdges(relations, byDepth, parentToChildren, pos)
-
-    return { nodes, edges }
+    const layout = buildFamilyTreeLayout(people, relations, onNodeClick, treeId)
+    return {
+        nodes: applySelectedNode(layout.nodes, selectedId),
+        edges: layout.edges,
+    }
 }

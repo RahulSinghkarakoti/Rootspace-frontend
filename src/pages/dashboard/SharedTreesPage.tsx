@@ -17,7 +17,7 @@ import { BridgeNode } from '@/components/layout/BridgeNode'
 import CreatePersonDialog from '@/components/dialogs/CreateUpdatePersonDialog/CreatePersonDialog'
 import { treesApi } from '@/api/treesApi'
 import { useSharedTreeStore } from '@/store/sharedTreeStore'
-import { buildFamilyTreeGraph } from '@/utils/treeLayoutUtils'
+import { buildFamilyTreeLayout, applySelectedNode } from '@/utils/treeLayoutUtils'
 import { hasPermissionRight } from '@/utils/permission'
 import type { PersonDetail, RelationItem } from '@/types/familyTree'
 
@@ -86,16 +86,15 @@ function SharedTreeCanvas({ token }: { token: string }) {
   const canEditOwn = hasPermissionRight(access?.permission, 'edit_own')
   let remainingAdds = access?.personLimit == null
     ? null
-    : Math.max(0, access.personLimit - access.member.addedPersonsCount)
+    : Math.max(0, access.personLimit - (access.member?.addedPersonsCount ?? 0))
   const addLimitReached = remainingAdds === 0
   const canCreateMore = canAddPerson && !addLimitReached
 
   useEffect(() => {
     const media = window.matchMedia('(max-width: 767px)')
+    const handler = (e: MediaQueryListEvent) => setShowMinMap(!e.matches)
 
-    const handler = (e: { matches: any }) => setShowMinMap(!e.matches)
-
-    setShowMinMap(prev => !prev)
+    setShowMinMap(!media.matches)
     media.addEventListener('change', handler)
 
     return () => media.removeEventListener('change', handler)
@@ -133,16 +132,16 @@ function SharedTreeCanvas({ token }: { token: string }) {
     if (showInfo) setSidebarOpen(true)
   }, [selectedId])
 
-  const graph = useMemo(() => {
+  const layout = useMemo(() => {
     if (!treeData) return { nodes: [], edges: [] }
-    const built = buildFamilyTreeGraph(people, relations, selectedId, handleNodeClick, treeData.id)
+    const built = buildFamilyTreeLayout(people, relations, handleNodeClick, treeData.id)
     return {
       nodes: built.nodes.map((node) => ({
         ...node,
         data: {
           ...node.data,
           canAddPerson: canCreateMore,
-          canEditPerson: canEditAny || (canEditOwn && people.some((person) => person.id === node.data.id && person.createdByMemberId === access?.member.id)),
+          canEditPerson: canEditAny || (canEditOwn && people.some((person) => person.id === node.data.id && Boolean(access?.member?.id && person.createdByMemberId === access.member.id))),
           canUploadAvatar,
           sharedToken: token,
           onSharedPersonCreated: handleSharedPersonCreated,
@@ -151,15 +150,20 @@ function SharedTreeCanvas({ token }: { token: string }) {
       })),
       edges: built.edges,
     }
-  }, [people, relations, selectedId, handleNodeClick, treeData, canCreateMore, canEditAny, canEditOwn, access?.member.id, canUploadAvatar, token, handleSharedPersonCreated, upsertPerson])
+  }, [people, relations, handleNodeClick, treeData, canCreateMore, canEditAny, canEditOwn, access?.member?.id, canUploadAvatar, token, handleSharedPersonCreated, upsertPerson])
 
-  const [nodes, setNodes, onNodesChange] = useNodesState(graph.nodes)
-  const [edges, setEdges, onEdgesChange] = useEdgesState(graph.edges)
+  const graphNodes = useMemo(
+    () => applySelectedNode(layout.nodes, selectedId),
+    [layout.nodes, selectedId],
+  )
+
+  const [nodes, setNodes, onNodesChange] = useNodesState(graphNodes)
+  const [edges, setEdges, onEdgesChange] = useEdgesState(layout.edges)
 
   useEffect(() => {
-    setNodes(graph.nodes)
-    setEdges(graph.edges)
-  }, [graph, setNodes, setEdges])
+    setNodes(graphNodes)
+    setEdges(layout.edges)
+  }, [graphNodes, layout.edges, setNodes, setEdges])
 
   if (!treeData || !access) return null
 
@@ -256,7 +260,7 @@ function SharedTreeCanvas({ token }: { token: string }) {
           person={selectedPerson}
           canUploadAvatar={canUploadAvatar}
           canManageEducation={canEditAny || canEditOwn}
-          canDelete={canEditAny || (canEditOwn && selectedPerson?.createdByMemberId === access.member.id)}
+          canDelete={canEditAny || (canEditOwn && Boolean(access?.member?.id && selectedPerson?.createdByMemberId === access.member.id))}
           sharedToken={token}
           onDeletePerson={handleSharedPersonDeleted}
           onClose={() => {

@@ -18,7 +18,7 @@ import { useAppStore } from '@/store/appStore'
 import CreatePersonDialog from '@/components/dialogs/CreateUpdatePersonDialog/CreatePersonDialog.tsx'
 import { Button } from '@/components/ui/button.tsx'
 import { Plus, AlertTriangle, RefreshCw } from 'lucide-react'
-import { buildFamilyTreeGraph } from '@/utils/treeLayoutUtils.ts'
+import { buildFamilyTreeLayout, applySelectedNode } from '@/utils/treeLayoutUtils.ts'
 import { BridgeNode } from '@/components/layout/BridgeNode.tsx'
 
 const nodeTypes = {
@@ -132,29 +132,23 @@ function TreeEditorInner({ sidebarOffset, treeId }: { sidebarOffset: number; tre
     [selectedId],
   )
 
-  const graph = useMemo(
-    () => buildFamilyTreeGraph(people, relations, selectedId, handleNodeClick, treeId),
-    [people, relations, selectedId, handleNodeClick, treeId],
+  const layout = useMemo(
+    () => buildFamilyTreeLayout(people, relations, handleNodeClick, treeId),
+    [people, relations, handleNodeClick, treeId],
   )
 
-  const [nodes, setNodes, onNodesChange] = useNodesState(graph.nodes)
-  const [edges, setEdges, onEdgesChange] = useEdgesState(graph.edges)
+  const graphNodes = useMemo(
+    () => applySelectedNode(layout.nodes, selectedId),
+    [layout.nodes, selectedId],
+  )
+
+  const [nodes, setNodes, onNodesChange] = useNodesState(graphNodes)
+  const [edges, setEdges, onEdgesChange] = useEdgesState(layout.edges)
 
   useEffect(() => {
-    setNodes((prevNodes) => {
-      const prevNodeMap = new Map(prevNodes.map((node) => [node.id, node]))
-      return graph.nodes.map((node) => {
-        const previous = prevNodeMap.get(node.id)
-        return previous
-          ? {
-            ...node,
-            position: previous.position ?? node.position,
-          }
-          : node
-      })
-    })
-    setEdges(graph.edges)
-  }, [graph, setNodes, setEdges])
+    setNodes(graphNodes)
+    setEdges(layout.edges)
+  }, [graphNodes, layout.edges, setNodes, setEdges])
 
   // ── Edge highlighting ──────────────────────────────────────────────────────
   const styledEdges = useMemo(() => {
@@ -307,8 +301,13 @@ export default function TreeEditorPage() {
   const [searchParams] = useSearchParams()
   const treeParam = Number(searchParams.get('tree'))
   const treeId = Number.isInteger(treeParam) && treeParam > 0 ? treeParam : 1
-  const { sidebarCollapsed } = useAppStore()
+  const { sidebarCollapsed, setSidebarCollapsed, setSidebarOpen } = useAppStore()
   const sidebarOffset = sidebarCollapsed ? 68 : 260
+
+  useEffect(() => {
+    setSidebarCollapsed(true)
+    setSidebarOpen(false)
+  }, [setSidebarCollapsed, setSidebarOpen])
   
   return (
     <ReactFlowProvider>

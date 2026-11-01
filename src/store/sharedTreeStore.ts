@@ -111,10 +111,12 @@ export const useSharedTreeStore = create<TreeStoreState>((set, get) => ({
             access: state.access
                 ? {
                     ...state.access,
-                    member: {
-                        ...state.access.member,
-                        addedPersonsCount: state.access.member.addedPersonsCount + 1,
-                    },
+                    member: state.access.member
+                        ? {
+                            ...state.access.member,
+                            addedPersonsCount: (state.access.member.addedPersonsCount ?? 0) + 1,
+                        }
+                        : state.access.member,
                 }
                 : state.access,
         })),
@@ -152,12 +154,12 @@ export const useSharedTreeStore = create<TreeStoreState>((set, get) => ({
                     },
                 }
                 : state.treeData,
-            access: state.access && decrementAddedCount
+            access: state.access && decrementAddedCount && state.access.member
                 ? {
                     ...state.access,
                     member: {
                         ...state.access.member,
-                        addedPersonsCount: Math.max(0, state.access.member.addedPersonsCount - 1),
+                        addedPersonsCount: Math.max(0, (state.access.member.addedPersonsCount ?? 0) - 1),
                     },
                 }
                 : state.access,

@@ -7,7 +7,10 @@ import { Button } from '@/components/ui/button';
 import { useToast } from '@/components/ui/toast';
 import { useLocation, useNavigate, useSearchParams } from 'react-router-dom';
 import { authApi } from '@/api/authApi';
+import { useAuth } from '@/hooks/useAuth';
+import logoImg from '@/assets/logo.png';
 const ResetPasswordPage = () => {
+    const { login } = useAuth();
     const [showPassword, setShowPassword] = useState(false)
     const [submitting, setSubmitting] = useState(false)
     const {
@@ -45,7 +48,7 @@ const ResetPasswordPage = () => {
             }
             const response = await authApi.changePassword(data.password, token);
             if (response.data.success === true) {
-                await authApi.login(response.data.data.email, data.password)
+                await login(response.data.data.email, data.password)
                 navigate(redirectTo, { replace: true })
                 reset()
                 toast.success('Success', response.data.message || 'Password reset successful. You can now log in with your new password.');
@@ -58,8 +61,14 @@ const ResetPasswordPage = () => {
         }
     }
     return (
-        <div className="min-h-screen bg-background flex items-center justify-center">
-            <div className="bg-card p-8 rounded-lg shadow-md w-full max-w-md">
+        <div className="min-h-screen bg-background flex items-center justify-center p-4">
+            <div className="bg-card p-8 rounded-lg shadow-md w-full max-w-md border border-border">
+                <div className="flex items-center gap-2.5 mb-6">
+                    <img src={logoImg} alt="RootSpace" className="h-8 w-8 rounded-lg object-contain" />
+                    <span className="font-display text-xl font-bold">
+                        Root<span className="text-amber-500">Space</span>
+                    </span>
+                </div>
                 <h1 className="text-2xl font-bold mb-4">Reset Password</h1>
                 <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
 

@@ -9,6 +9,8 @@ import type { DashboardData } from '@/types/dashboard.types'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
+import { ScrollArea } from '@/components/ui/scroll-area'
+import { formatDistanceToNow } from 'date-fns'
 
 let pendingDashboardStats: Promise<DashboardData> | null = null
 
@@ -18,6 +20,15 @@ const statColors = [
   { color: 'text-purple-500', bg: 'bg-purple-500/10' },
   { color: 'text-amber-500', bg: 'bg-amber-500/10' },
 ]
+
+function formatActivityTime(dateInput: Date | string | number) {
+  try {
+    const d = new Date(dateInput)
+    return isNaN(d.getTime()) ? '' : formatDistanceToNow(d, { addSuffix: true })
+  } catch {
+    return ''
+  }
+}
 
 export default function DashboardPage() {
   const { t } = useTranslation()
@@ -156,28 +167,50 @@ export default function DashboardPage() {
         </div>
 
         <div>
-          <Card className="h-full">
+          <Card className="flex flex-col h-full">
             <CardHeader className="pb-3">
-              <CardTitle className="text-lg font-semibold">{t('dashboard.recentActivity')}</CardTitle>
+              <div className="flex items-center justify-between">
+                <CardTitle className="text-lg font-semibold">{t('dashboard.recentActivity')}</CardTitle>
+                {dashboard?.recentActivities && dashboard.recentActivities.length > 0 && (
+                  <Badge variant="secondary" className="text-xs font-normal">
+                    {dashboard.recentActivities.length}
+                  </Badge>
+                )}
+              </div>
             </CardHeader>
-            <CardContent className="space-y-4 pt-0">
-              {dashboard?.recentActivities?.map((item) => (
-                <div key={item.id} className="flex gap-3">
-                  <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-muted mt-0.5">
-                    <Clock className="h-3.5 w-3.5 text-muted-foreground" />
-                  </div>
-                  <div className="min-w-0">
-                    <p className="text-sm text-foreground">
-                      <span className="text-amber-500 font-medium">{t(`dashboard.activity.${item.action}`) || item.action}</span>{' '}
-                      {item.entity || item.metadata?.name || ''}
-                    </p>
-                    {item.metadata?.treeName && (
-                      <p className="text-xs text-muted-foreground">{item.metadata.treeName}</p>
-                    )}
-                    <p className="text-xs text-muted-foreground/60 mt-0.5">{new Date(item.createdAt).toLocaleString(undefined)}</p>
-                  </div>
+            <CardContent className="flex-1 pt-0">
+              {!dashboard?.recentActivities || dashboard.recentActivities.length === 0 ? (
+                <div className="flex flex-col items-center justify-center py-12 text-center text-muted-foreground">
+                  <Clock className="h-8 w-8 mb-2 opacity-30" />
+                  <p className="text-sm">{t('dashboard.noRecentActivity')}</p>
                 </div>
-              ))}
+              ) : (
+                <ScrollArea className="h-[360px] pr-3">
+                  <div className="space-y-3">
+                    {dashboard.recentActivities.map((item) => (
+                      <div key={item.id} className="flex gap-3 p-1.5 rounded-lg hover:bg-muted/40 transition-colors">
+                        <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-muted mt-0.5">
+                          <Clock className="h-3.5 w-3.5 text-muted-foreground" />
+                        </div>
+                        <div className="min-w-0 flex-1">
+                          <p className="text-sm text-foreground">
+                            <span className="text-amber-500 font-medium">
+                              {t(`dashboard.activity.${item.action}`) || item.action}
+                            </span>{' '}
+                            <span className="truncate">{item.entity || item.metadata?.name || ''}</span>
+                          </p>
+                          {item.metadata?.treeName && (
+                            <p className="text-xs text-muted-foreground truncate">{item.metadata.treeName}</p>
+                          )}
+                          <p className="text-xs text-muted-foreground/60 mt-0.5">
+                            {formatActivityTime(item.createdAt)}
+                          </p>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </ScrollArea>
+              )}
             </CardContent>
           </Card>
         </div>

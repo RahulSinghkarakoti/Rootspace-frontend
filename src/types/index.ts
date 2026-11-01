@@ -18,44 +18,6 @@ export interface AuthTokens {
   expiresAt: number
 }
 
-export interface AuthState {
-  user: User | null
-  tokens: AuthTokens | null
-  isAuthenticated: boolean
-  isLoading: boolean
-}
-
-export interface FamilyMember {
-  id: string
-  name: string
-  birthDate?: string
-  deathDate?: string
-  gender: 'male' | 'female' | 'other'
-  avatar?: string
-  bio?: string
-  parentIds: string[]
-  spouseIds: string[]
-  childIds: string[]
-}
-
-export interface FamilyTree {
-  id: string
-  name: string
-  description?: string
-  ownerId: string
-  isPublic: boolean
-  shareToken?: string
-  members: FamilyMember[]
-  createdAt: string
-  updatedAt: string
-}
-
-export interface AppState {
-  theme: 'light' | 'dark'
-  sidebarOpen: boolean
-  sidebarCollapsed: boolean
-}
-
 export type TreeType = 'FAMILY' | 'EDUCATIONAL'
 
 export interface TreeSummary {

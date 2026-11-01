@@ -1,6 +1,7 @@
-import { useState } from 'react'
-import { Link, useLocation, useNavigate } from 'react-router-dom'
-import { TreePine, Mail, Lock, Eye, EyeOff, ArrowRight, Loader2 } from 'lucide-react'
+import { useState, useEffect } from 'react'
+import { Link, useLocation, useNavigate, useSearchParams } from 'react-router-dom'
+import { Mail, Lock, Eye, EyeOff, ArrowRight, Loader2 } from 'lucide-react'
+import logoImg from '@/assets/logo.png'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -11,20 +12,31 @@ import ForgotPassswordDialog from '@/components/dialogs/ForgetPasswordDialog/For
 import { useForm } from 'react-hook-form'
 export default function LoginPage() {
   const [showPassword, setShowPassword] = useState(false)
+  const [forgotPasswordOpen, setForgotPasswordOpen] = useState(false)
   const [error, setError] = useState('')
+  const [searchParams] = useSearchParams()
   const { login, signInWithGoogle, isLoading } = useAuth()
   const { toggleTheme, theme } = useAppStore()
   const navigate = useNavigate()
   const location = useLocation()
   const from = (location.state as { from?: { pathname: string; search?: string } })?.from
   const redirectTo = from ? `${from.pathname}${from.search ?? ''}` : '/dashboard'
+
+  useEffect(() => {
+    const err = searchParams.get('error')
+    if (err === 'google_auth_failed') {
+      setError('Google sign-in was cancelled or failed. Please try again.')
+    } else if (err === 'account_disabled') {
+      setError('Your account has been disabled. Please contact support.')
+    }
+  }, [searchParams])
   const {
     register,
     handleSubmit,
     formState: { errors, isValid },
     reset,
   } = useForm<{ email: string; password: string }>({
-    defaultValues: { email: 'demo@rootspace.app', password: '4!Ed98j9w5Laq@e' }, mode: "onChange",
+    defaultValues: { email: '', password: '' }, mode: "onChange",
   })
   const onLogin = async (data: { email: string; password: string }) => {
     setError('')
@@ -40,13 +52,11 @@ export default function LoginPage() {
   return (
     <div className="min-h-screen bg-background flex">
       {/* Left: Form */}
-      <div className="flex flex-1 flex-col">
+      <div className="flex flex-1 flex-col justify-between min-h-screen">
         {/* Header */}
         <div className="flex items-center justify-between p-6">
-          <Link to="/" className="flex items-center gap-2">
-            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-amber-500 shadow-md shadow-amber-500/30">
-              <TreePine className="h-4 w-4 text-amber-950" />
-            </div>
+          <Link to="/login" className="flex items-center gap-2.5">
+            <img src={logoImg} alt="RootSpace" className="h-8 w-8 rounded-lg object-contain" />
             <span className="font-display text-xl font-bold">
               Root<span className="text-amber-500">Space</span>
             </span>
@@ -126,12 +136,13 @@ export default function LoginPage() {
               <div className="space-y-1.5">
                 <div className="flex items-center justify-between">
                   <Label htmlFor="password">Password</Label>
-                  <ForgotPassswordDialog>
-
-                    <a href="#" className="text-xs text-amber-500 hover:underline">
-                      Forgot password?
-                    </a>
-                  </ForgotPassswordDialog>
+                  <button
+                    type="button"
+                    onClick={() => setForgotPasswordOpen(true)}
+                    className="text-xs text-amber-500 hover:underline cursor-pointer"
+                  >
+                    Forgot password?
+                  </button>
                 </div>
                 <div className="relative">
                   <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
@@ -180,6 +191,11 @@ export default function LoginPage() {
               </Button>
             </form>
 
+            <ForgotPassswordDialog
+              open={forgotPasswordOpen}
+              onOpenChange={setForgotPasswordOpen}
+            />
+
             <p className="mt-6 text-center text-sm text-muted-foreground">
               Don't have an account?{' '}
               <Link to="/register" state={location.state} className="text-amber-500 font-medium hover:underline">
@@ -188,6 +204,19 @@ export default function LoginPage() {
             </p>
           </div>
         </div>
+
+        {/* Footer */}
+        <footer className="p-6 border-t border-border/40 text-center text-xs text-muted-foreground flex flex-wrap items-center justify-center gap-3">
+          <span>&copy; {new Date().getFullYear()} RootSpace</span>
+          <span>&bull;</span>
+          <Link to="/privacy" className="hover:text-foreground transition-colors hover:underline">
+            Privacy Policy
+          </Link>
+          <span>&bull;</span>
+          <Link to="/tnc" className="hover:text-foreground transition-colors hover:underline">
+            Terms &amp; Conditions
+          </Link>
+        </footer>
       </div>
 
       {/* Right: Decorative panel (desktop only) */}
@@ -197,7 +226,7 @@ export default function LoginPage() {
           <div className="absolute bottom-1/4 right-1/4 h-48 w-48 rounded-full bg-amber-600 blur-3xl" />
         </div>
         <div className="relative flex flex-col items-center justify-center w-full p-12 text-center">
-          <TreePine className="h-20 w-20 text-amber-400 mb-8 opacity-80" />
+          <img src={logoImg} alt="RootSpace" className="h-24 w-24 mb-8 object-contain drop-shadow-lg" />
           <h2 className="font-display text-4xl font-bold text-amber-50 mb-4 leading-tight">
             Every branch tells<br />a story
           </h2>

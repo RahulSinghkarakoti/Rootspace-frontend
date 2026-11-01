@@ -11,6 +11,7 @@ import { useTreeStore } from '@/store/treeStore'
 import { Button } from '../ui/button'
 import { useMutation } from '@tanstack/react-query'
 import AvatarUploadDialog from '../dialogs/AvatarUploadDialog/AvatarUploadDialog'
+import DeletePersonDialog from '@/components/dialogs/DeletePersonDialog/DeletePersonDialog'
 import EducationMediaDialog from '@/components/dialogs/EducationMediaDialog/EducationMediaDialog'
 import EducationForm from '@/components/education/EducationForm'
 import { educationApi } from '@/api/educationApi'
@@ -396,9 +397,19 @@ export function PersonDetailSidebar({
 
       </div>
       {canDelete && (
-        <Button variant="destructive" size="sm" className="mx-5 my-2 mt-4 w-auto" onClick={() => person && onDelete(person.id)}>
-          {t('personDetail.deletePerson') || 'Delete Person'}
-        </Button>
+        <DeletePersonDialog
+          personName={person?.fullName || ''}
+          isDeleting={mutation.isPending}
+          onConfirm={() => {
+            if (person) {
+              return mutation.mutateAsync(person.id)
+            }
+          }}
+        >
+          <Button variant="destructive" size="sm" className="mx-5 my-2 mt-4 w-auto">
+            {t('personDetail.deletePerson') || 'Delete Person'}
+          </Button>
+        </DeletePersonDialog>
       )}
     </div>
   )

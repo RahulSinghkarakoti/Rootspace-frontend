@@ -14,6 +14,15 @@ const saveGoogleRedirect = (redirectTo: string) => {
   }
 }
 
+export function parseName(name: string): [string, string] {
+  if (!name?.trim()) return ['', ''];
+
+  const parts = name.trim().split(/\s+/).filter(Boolean);
+  return parts.length === 1
+    ? [parts[0], '']
+    : [parts[0], parts.slice(1).join(' ')];
+}
+
 export function useAuth() {
   const { user, tokens, isAuthenticated, isLoading, login, logout, setLoading ,setSessionInfo} =
     useAuthStore()
@@ -35,16 +44,6 @@ export function useAuth() {
     },
     [login, setLoading]
   )
-
-  // Extract parseName outside useCallback (don't recreate on every call)
-  const parseName = useCallback((name: string): [string, string] => {
-    if (!name?.trim()) return ['', ''];
-
-    const parts = name.trim().split(/\s+/).filter(Boolean);
-    return parts.length === 1
-      ? ['', parts[0]]
-      : [parts[0], parts.slice(1).join(' ')];
-  }, []);
 
   const handleRegister = useCallback(
     async (name: string, email: string, password: string) => {

@@ -1,0 +1,512 @@
+{
+  ".vscode/settings.json": {
+    "mtime": 1789217754.0069995,
+    "seen": 1793469740.5345643,
+    "ast_hash": "3de0942511d3cf32342335a10bee72c0",
+    "semantic_hash": ""
+  },
+  "package.json": {
+    "mtime": 1793532257.7926838,
+    "seen": 1793532660.0928452,
+    "ast_hash": "5ac88d4a4ea8998c387ee4e6daf3b454",
+    "semantic_hash": ""
+  },
+  "postcss.config.js": {
+    "mtime": 1789217754.0079973,
+    "seen": 1793469740.53457,
+    "ast_hash": "ef3ba2a81ba19f8ea5ddf625521e96f0",
+    "semantic_hash": ""
+  },
+  "src/App.tsx": {
+    "mtime": 1793532038.2456062,
+    "seen": 1793532660.0928495,
+    "ast_hash": "a540f6ed7f0aa1f53736c8e2419168d8",
+    "semantic_hash": ""
+  },
+  "src/api/authApi.ts": {
+    "mtime": 1789217754.008549,
+    "seen": 1793469740.5345714,
+    "ast_hash": "cd545f093cb127769f904338e907aa14",
+    "semantic_hash": ""
+  },
+  "src/api/axios.ts": {
+    "mtime": 1789217754.0086465,
+    "seen": 1793469740.5345724,
+    "ast_hash": "bbef1074dc48bcad28819aa6be3052f4",
+    "semantic_hash": ""
+  },
+  "src/api/educationApi.ts": {
+    "mtime": 1789217754.0086465,
+    "seen": 1793469740.5345728,
+    "ast_hash": "cc68755b9f3c07904f10d2545d3e2139",
+    "semantic_hash": ""
+  },
+  "src/api/personApi.ts": {
+    "mtime": 1789217754.0086465,
+    "seen": 1793469740.5345736,
+    "ast_hash": "aa86f3e37c2924b9749fb86aecb276aa",
+    "semantic_hash": ""
+  },
+  "src/api/treesApi.ts": {
+    "mtime": 1789221056.7921488,
+    "seen": 1793469740.5345743,
+    "ast_hash": "9f9ac285d7c5d59d948fba178ecbb808",
+    "semantic_hash": ""
+  },
+  "src/api/uploadApi.ts": {
+    "mtime": 1789217754.0086465,
+    "seen": 1793469740.534575,
+    "ast_hash": "e551fb53efbeeddd701013cbe6bd356a",
+    "semantic_hash": ""
+  },
+  "src/components/auth/ProtectedRoute.tsx": {
+    "mtime": 1789217754.0089142,
+    "seen": 1793469740.5345757,
+    "ast_hash": "e692e50931748608ca307857b23f1647",
+    "semantic_hash": ""
+  },
+  "src/components/dialogs/AddTreeDialog/AddTreeDialog.tsx": {
+    "mtime": 1789217754.009004,
+    "seen": 1793469740.5345767,
+    "ast_hash": "75a6830baa4e6a973868f98cf23daf23",
+    "semantic_hash": ""
+  },
+  "src/components/dialogs/AvatarUploadDialog/AvatarUploadDialog.tsx": {
+    "mtime": 1793531093.6976302,
+    "seen": 1793532660.0928586,
+    "ast_hash": "1a41f51a2d3bdc1e5787206baf06686c",
+    "semantic_hash": ""
+  },
+  "src/components/dialogs/CreateUpdatePersonDialog/CreatePersonDialog.tsx": {
+    "mtime": 1793531433.9465518,
+    "seen": 1793532660.0928595,
+    "ast_hash": "cea26ecb580d9e2b79c1b38d9b421b55",
+    "semantic_hash": ""
+  },
+  "src/components/dialogs/DeleteTreeDialog/DeleteTreeDialog.tsx": {
+    "mtime": 1789217754.009004,
+    "seen": 1793469740.5345788,
+    "ast_hash": "ad6b8013c07653e3ed5c2710f9218f78",
+    "semantic_hash": ""
+  },
+  "src/components/dialogs/EducationMediaDialog/EducationMediaDialog.tsx": {
+    "mtime": 1789217754.009004,
+    "seen": 1793469740.5345793,
+    "ast_hash": "8b21bb2c6eb058338323a3b524b16810",
+    "semantic_hash": ""
+  },
+  "src/components/dialogs/ForgetPasswordDialog/ForgotPassswordDialog.tsx": {
+    "mtime": 1789217754.009004,
+    "seen": 1793469740.53458,
+    "ast_hash": "ed8c469fadbcee4b8cd5036b91fbc41c",
+    "semantic_hash": ""
+  },
+  "src/components/dialogs/ShareTreeDialog/ShareTreeDialog.tsx": {
+    "mtime": 1789217754.009004,
+    "seen": 1793469740.5345805,
+    "ast_hash": "168ed54f3d1a5c65e60784098daa4443",
+    "semantic_hash": ""
+  },
+  "src/components/dialogs/index.ts": {
+    "mtime": 1789217754.009004,
+    "seen": 1793469740.5345812,
+    "ast_hash": "273256e598c88032115bc3013433ffa1",
+    "semantic_hash": ""
+  },
+  "src/components/education/EducationForm.tsx": {
+    "mtime": 1789217754.009004,
+    "seen": 1793469740.5345817,
+    "ast_hash": "fde57a6badf957dae9eddf3fb0e8adfb",
+    "semantic_hash": ""
+  },
+  "src/components/layout/BridgeNode.tsx": {
+    "mtime": 1789217754.009004,
+    "seen": 1793469740.5345826,
+    "ast_hash": "a1b670bcda582790d5b6ea1644e8661f",
+    "semantic_hash": ""
+  },
+  "src/components/layout/DashboardLayout.tsx": {
+    "mtime": 1789217754.0099974,
+    "seen": 1793469740.534583,
+    "ast_hash": "0c324a12f1ef636e16e4faf94985690e",
+    "semantic_hash": ""
+  },
+  "src/components/layout/FamilyMemberNode.tsx": {
+    "mtime": 1793531127.8898332,
+    "seen": 1793532660.092867,
+    "ast_hash": "38fe9d96c221254fe6625a4a4cdb3bfc",
+    "semantic_hash": ""
+  },
+  "src/components/layout/Navbar.tsx": {
+    "mtime": 1789217754.0099974,
+    "seen": 1793469740.5345845,
+    "ast_hash": "2cb22835ea5f18a43f1c48e6c40ff314",
+    "semantic_hash": ""
+  },
+  "src/components/layout/PersonDetailSidebar.tsx": {
+    "mtime": 1789217754.0099974,
+    "seen": 1793469740.534585,
+    "ast_hash": "34d5b0e50c8fdafbb7188c6e5c9ee7c1",
+    "semantic_hash": ""
+  },
+  "src/components/layout/SettingSidebar.tsx": {
+    "mtime": 1789217754.0099974,
+    "seen": 1793469740.534586,
+    "ast_hash": "bc4b665137922a384b725e9f9c5cef51",
+    "semantic_hash": ""
+  },
+  "src/components/layout/SettingsLayout.tsx": {
+    "mtime": 1789217754.0099974,
+    "seen": 1793469740.5345864,
+    "ast_hash": "f1ebb78e958369ce82437ad2b8371511",
+    "semantic_hash": ""
+  },
+  "src/components/layout/Sidebar.tsx": {
+    "mtime": 1789217754.0099974,
+    "seen": 1793469740.5345874,
+    "ast_hash": "eb1008249444d4974f91b0ea44d1b94f",
+    "semantic_hash": ""
+  },
+  "src/components/layout/ThemeProvider.tsx": {
+    "mtime": 1789217754.0099974,
+    "seen": 1793469740.534588,
+    "ast_hash": "51b015222da1c5294c5d949866d92b6f",
+    "semantic_hash": ""
+  },
+  "src/components/layout/TreeToolbar.tsx": {
+    "mtime": 1793531783.1643412,
+    "seen": 1793532660.0928733,
+    "ast_hash": "2bf824698d8310e6f8b75ed00fa6c9af",
+    "semantic_hash": ""
+  },
+  "src/components/layout/index.ts": {
+    "mtime": 1789217754.0109975,
+    "seen": 1793469740.5345895,
+    "ast_hash": "3bba3bee8fcfdb43ef7d8030a678fa0f",
+    "semantic_hash": ""
+  },
+  "src/components/ui/avatar.tsx": {
+    "mtime": 1789217754.0109975,
+    "seen": 1793469740.5345902,
+    "ast_hash": "1083810f703e0de71babd6ce9a2fa488",
+    "semantic_hash": ""
+  },
+  "src/components/ui/badge.tsx": {
+    "mtime": 1789217754.0116484,
+    "seen": 1793469740.5345907,
+    "ast_hash": "efae0f99759be0f53edc89119481423d",
+    "semantic_hash": ""
+  },
+  "src/components/ui/button.tsx": {
+    "mtime": 1789217754.0116484,
+    "seen": 1793469740.5345914,
+    "ast_hash": "d5ff55e69146199a28924fd51728729a",
+    "semantic_hash": ""
+  },
+  "src/components/ui/card.tsx": {
+    "mtime": 1789217754.0116484,
+    "seen": 1793469740.5345922,
+    "ast_hash": "5950d4cc02a4f521ad39b6bd4c1140dd",
+    "semantic_hash": ""
+  },
+  "src/components/ui/dialog/Dialog.tsx": {
+    "mtime": 1789217754.0116484,
+    "seen": 1793469740.5345929,
+    "ast_hash": "a3f76d6147a9b0092dbf8522edb21c57",
+    "semantic_hash": ""
+  },
+  "src/components/ui/dialog/index.ts": {
+    "mtime": 1789217754.011968,
+    "seen": 1793469740.5345933,
+    "ast_hash": "a31e68d156de9cf64b178c6f914ec368",
+    "semantic_hash": ""
+  },
+  "src/components/ui/input.tsx": {
+    "mtime": 1789217754.011968,
+    "seen": 1793469740.534594,
+    "ast_hash": "6773ac184391972a334c54b10bf6b697",
+    "semantic_hash": ""
+  },
+  "src/components/ui/label.tsx": {
+    "mtime": 1789217754.011968,
+    "seen": 1793469740.5345945,
+    "ast_hash": "a30e9acbd647e5988334311b679d9376",
+    "semantic_hash": ""
+  },
+  "src/components/ui/scroll-area.tsx": {
+    "mtime": 1789217754.011968,
+    "seen": 1793469740.5345953,
+    "ast_hash": "c2a5b29bfd977a634683a6a2aaafdbe5",
+    "semantic_hash": ""
+  },
+  "src/components/ui/select.tsx": {
+    "mtime": 1789217754.011968,
+    "seen": 1793469740.5345957,
+    "ast_hash": "8d55542f51ce410a5648257ff54e993f",
+    "semantic_hash": ""
+  },
+  "src/components/ui/separator.tsx": {
+    "mtime": 1789217754.011968,
+    "seen": 1793469740.5345967,
+    "ast_hash": "58d1a7a57ac5dd7e67e8e736298101f8",
+    "semantic_hash": ""
+  },
+  "src/components/ui/toast.tsx": {
+    "mtime": 1789217754.011968,
+    "seen": 1793469740.5345972,
+    "ast_hash": "5b4866ed8c42e1114f12b24d4118c12d",
+    "semantic_hash": ""
+  },
+  "src/hooks/useAuth.ts": {
+    "mtime": 1793532414.698364,
+    "seen": 1793532660.092886,
+    "ast_hash": "038e0abc820bf9425c2ccb2afce01761",
+    "semantic_hash": ""
+  },
+  "src/i18n.ts": {
+    "mtime": 1789217754.0119977,
+    "seen": 1793469740.5345988,
+    "ast_hash": "88075d156a00348da5b93997a4c796a3",
+    "semantic_hash": ""
+  },
+  "src/lib/errors.ts": {
+    "mtime": 1789217754.0119977,
+    "seen": 1793469740.5345998,
+    "ast_hash": "eff8929dca17b3a3780743cda100c172",
+    "semantic_hash": ""
+  },
+  "src/lib/utils.ts": {
+    "mtime": 1789217754.0126214,
+    "seen": 1793469740.5346005,
+    "ast_hash": "bd7f1534696295bfbab094ac93447322",
+    "semantic_hash": ""
+  },
+  "src/locales/en.json": {
+    "mtime": 1793531371.607212,
+    "seen": 1793532660.0928893,
+    "ast_hash": "62a11ab8658e3c731c82825ae74d7822",
+    "semantic_hash": ""
+  },
+  "src/locales/hi.json": {
+    "mtime": 1793531405.5063968,
+    "seen": 1793532660.09289,
+    "ast_hash": "f77464d3b5bdbab945bd2e90b9d6235d",
+    "semantic_hash": ""
+  },
+  "src/main.tsx": {
+    "mtime": 1789217754.0127592,
+    "seen": 1793469740.5346024,
+    "ast_hash": "962e223fa05bbfd5062ac9f967422439",
+    "semantic_hash": ""
+  },
+  "src/pages/GoogleCallbackPage.tsx": {
+    "mtime": 1793530436.4058137,
+    "seen": 1793532660.0928915,
+    "ast_hash": "6cf03e48d9d10c07bf95c67b58e5ff7d",
+    "semantic_hash": ""
+  },
+  "src/pages/LoginPage.tsx": {
+    "mtime": 1793530422.7217467,
+    "seen": 1793532660.0928922,
+    "ast_hash": "6272566984848362658265fcc64f6c82",
+    "semantic_hash": ""
+  },
+  "src/pages/RegisterPage.tsx": {
+    "mtime": 1793470131.5115187,
+    "seen": 1793529807.0620236,
+    "ast_hash": "c2abdf9a1e79424da4d15c99692b83ae",
+    "semantic_hash": ""
+  },
+  "src/pages/ResetPasswordPage.tsx": {
+    "mtime": 1793530557.518485,
+    "seen": 1793532660.0928948,
+    "ast_hash": "639f050e1f81671868a40feaeb1ef65f",
+    "semantic_hash": ""
+  },
+  "src/pages/dashboard/CollaboratorsPage.tsx": {
+    "mtime": 1789217754.013353,
+    "seen": 1793469740.534607,
+    "ast_hash": "a53bc3fbf9570204b9cfaeddb14371cf",
+    "semantic_hash": ""
+  },
+  "src/pages/dashboard/DashboardPage.tsx": {
+    "mtime": 1789217754.013353,
+    "seen": 1793469740.5346076,
+    "ast_hash": "0e9740bd6891cd9170600a1117944621",
+    "semantic_hash": ""
+  },
+  "src/pages/dashboard/SettingsAppsSessionsPage.tsx": {
+    "mtime": 1789217754.013353,
+    "seen": 1793469740.5346081,
+    "ast_hash": "4f049f299126475e207f8f21f396e7e1",
+    "semantic_hash": ""
+  },
+  "src/pages/dashboard/SettingsPrivacySafetyPage.tsx": {
+    "mtime": 1789217754.013353,
+    "seen": 1793469740.5346093,
+    "ast_hash": "5e5897c3480e210b338b885db702483a",
+    "semantic_hash": ""
+  },
+  "src/pages/dashboard/SettingsProfilePage.tsx": {
+    "mtime": 1789217754.013353,
+    "seen": 1793469740.5346103,
+    "ast_hash": "3b8c36ba0e1bfaf208bae8860e28c604",
+    "semantic_hash": ""
+  },
+  "src/pages/dashboard/SharedTreeAccessPage.tsx": {
+    "mtime": 1789217754.013353,
+    "seen": 1793469740.5346112,
+    "ast_hash": "70a4fb7c25530df29e8ef9c427b71518",
+    "semantic_hash": ""
+  },
+  "src/pages/dashboard/SharedTreesPage.tsx": {
+    "mtime": 1793531687.1158648,
+    "seen": 1793532660.092902,
+    "ast_hash": "9102809c3419529280c69a82946f7174",
+    "semantic_hash": ""
+  },
+  "src/pages/dashboard/TreeEditorPage.tsx": {
+    "mtime": 1793531652.1916916,
+    "seen": 1793532660.0929027,
+    "ast_hash": "f54314aacf72eaf25da327f5eed96cd7",
+    "semantic_hash": ""
+  },
+  "src/pages/dashboard/TreesPage.tsx": {
+    "mtime": 1789217754.013353,
+    "seen": 1793469740.5346131,
+    "ast_hash": "96400d9961076607ac2ccea86dc89364",
+    "semantic_hash": ""
+  },
+  "src/pages/dashboard/index.ts": {
+    "mtime": 1793531979.0593126,
+    "seen": 1793532660.0929043,
+    "ast_hash": "c8d8c6d1ea44fe3a9dd246ab95d0e205",
+    "semantic_hash": ""
+  },
+  "src/store/appStore.ts": {
+    "mtime": 1789217754.0139978,
+    "seen": 1793469740.5346143,
+    "ast_hash": "5cce98b507c606ab5f42a530f85e2e11",
+    "semantic_hash": ""
+  },
+  "src/store/authStore.ts": {
+    "mtime": 1793531010.0211241,
+    "seen": 1793532660.0929067,
+    "ast_hash": "fe3f98749216e60595b533b878e8c08b",
+    "semantic_hash": ""
+  },
+  "src/store/sharedTreeStore.ts": {
+    "mtime": 1789217754.0139978,
+    "seen": 1793469740.5346155,
+    "ast_hash": "30e9d4e0681c0f77ebce8f4ff193829b",
+    "semantic_hash": ""
+  },
+  "src/store/treeStore.ts": {
+    "mtime": 1793530728.2260313,
+    "seen": 1793532660.0929086,
+    "ast_hash": "c1718d95e31407acaef0bdd296f8cf0f",
+    "semantic_hash": ""
+  },
+  "src/types/dashboard.types.ts": {
+    "mtime": 1789218550.115078,
+    "seen": 1793469740.534617,
+    "ast_hash": "4748650d8c6c01a6cff3ca34936e8f6e",
+    "semantic_hash": ""
+  },
+  "src/types/familyTree.ts": {
+    "mtime": 1789217754.0147579,
+    "seen": 1793469740.5346177,
+    "ast_hash": "5014472ca985f614d5624ca74350d0fb",
+    "semantic_hash": ""
+  },
+  "src/types/index.ts": {
+    "mtime": 1789218550.0440779,
+    "seen": 1793469740.5346184,
+    "ast_hash": "b4b4c4eb74ab1713342675a72a988ca4",
+    "semantic_hash": ""
+  },
+  "src/utils/permission.ts": {
+    "mtime": 1789217754.0147579,
+    "seen": 1793469740.534619,
+    "ast_hash": "04d50f0b428021df3af8ca9a660b7f74",
+    "semantic_hash": ""
+  },
+  "src/utils/treeLayoutUtils.ts": {
+    "mtime": 1793531625.7735605,
+    "seen": 1793532660.0929139,
+    "ast_hash": "edeebe5fdd3c67822818c2c3ffc2cd30",
+    "semantic_hash": ""
+  },
+  "src/vite-env.d.ts": {
+    "mtime": 1789217754.0149565,
+    "seen": 1793469740.5346205,
+    "ast_hash": "0352474ba2918efe13895edbc3780d94",
+    "semantic_hash": ""
+  },
+  "tailwind.config.js": {
+    "mtime": 1789217754.0149565,
+    "seen": 1793469740.5346212,
+    "ast_hash": "c177faa4c5e18c0d651ae95c84954aa4",
+    "semantic_hash": ""
+  },
+  "tsconfig.json": {
+    "mtime": 1789217754.0149565,
+    "seen": 1793469740.5346217,
+    "ast_hash": "f2c5876dba2bc15f572820fa2c8c99a3",
+    "semantic_hash": ""
+  },
+  "tsconfig.node.json": {
+    "mtime": 1789217754.0149565,
+    "seen": 1793469740.5346224,
+    "ast_hash": "767b2e9abe6452170cdc399ca052cfbc",
+    "semantic_hash": ""
+  },
+  "vercel.json": {
+    "mtime": 1789217754.0149565,
+    "seen": 1793469740.5346231,
+    "ast_hash": "d48cc8d8f4230020983739bf7b8fa9e1",
+    "semantic_hash": ""
+  },
+  "vite.config.ts": {
+    "mtime": 1793531725.506055,
+    "seen": 1793532660.0929193,
+    "ast_hash": "addfd88257dee5c49001323c4748b14c",
+    "semantic_hash": ""
+  },
+  "index.html": {
+    "mtime": 1789217754.0069995,
+    "seen": 1793469740.5346246,
+    "ast_hash": "b445664ead3550aca2ac31fdf839faf6",
+    "semantic_hash": ""
+  },
+  "src/pages/PrivacyPage.tsx": {
+    "mtime": 1793470047.1492505,
+    "seen": 1793529807.062014,
+    "ast_hash": "b27cf6f5ee522eff1ad106e7888023d3",
+    "semantic_hash": ""
+  },
+  "src/pages/TermsPage.tsx": {
+    "mtime": 1793470063.0222883,
+    "seen": 1793529807.0620406,
+    "ast_hash": "2d103ef5bbfc0f1c468cd35c2c1a00ea",
+    "semantic_hash": ""
+  },
+  "src/hooks/useAuth.test.ts": {
+    "mtime": 1793532435.975447,
+    "seen": 1793532660.0928848,
+    "ast_hash": "0fa59e8c7f63051bca65901e44581df8",
+    "semantic_hash": ""
+  },
+  "src/store/authStore.test.ts": {
+    "mtime": 1793532387.9062595,
+    "seen": 1793532660.092906,
+    "ast_hash": "96328804ce378c246f9af9e311fd250c",
+    "semantic_hash": ""
+  },
+  "src/utils/treeLayoutUtils.test.ts": {
+    "mtime": 1793532517.1817634,
+    "seen": 1793532660.092913,
+    "ast_hash": "84b0c3be8d1a266c5c4f0613ccecaf1c",
+    "semantic_hash": ""
+  }
+}
